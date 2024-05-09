@@ -485,7 +485,7 @@
                         "uuid": "3ffcd26a73d84ff5a87e8e81bfe9c89e",
                         "name": "Creaci\u00f3n de Stored procedures",
                         "type": "SSH",
-                        "key": "ssh.run[mysql create stored procedures,{$CTRLPART.SSH.HOST}{$CTRLPART.SSH.PORT}]",
+                        "key": "ssh.run[mysql create stored procedures,{$CTRLPART.SSH.HOST},{$CTRLPART.SSH.PORT}]",
                         "delay": "0;md31wd1h0m0s0",
                         "trends": "0",
                         "status": "DISABLED",
