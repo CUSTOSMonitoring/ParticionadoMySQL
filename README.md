@@ -132,7 +132,7 @@ _Menciona las herramientas que utilizaste para crear tu proyecto_
 _Las siguientes son todas las Macros existentes en el Template_
 
 |MACRO|VALUE|Description
-|----|-----------|-------|
+|----|-------|-----------|
 |{$CTRLPART.DB.CONSTR}|Driver=/usr/lib64/libmaodbc.so;Server=127.0.0.1;Port=3306;Database=zabbix|`Conection String a la DB`|
 |{$CTRLPART.DB.DSN}|<SET_DSN>|`Nombre del DSN para conectarse`|
 |{$CTRLPART.DB.HOST}|127.0.0.1|`Host donde se encuentra la DB para la creación de los stored procedures`|
