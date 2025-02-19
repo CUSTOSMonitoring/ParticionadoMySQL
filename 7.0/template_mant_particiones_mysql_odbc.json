@@ -1,1288 +1,1234 @@
 {
-  "zabbix_export": {
-      "version": "7.0",
-      "template_groups": [
-          {
-              "uuid": "64413dab4154436f9473b042acaffd54",
-              "name": "Custos"
-          }
-      ],
-      "templates": [
-          {
-              "uuid": "33558c1f77c94b2e8e3fc6eb64231542",
-              "template": "Control Particionado MySQL - ODBC Custos",
-              "name": "Control Particionado MySQL - ODBC Custos",
-              "description": "Controles de d\u00edas que quedan en las particiones de las tablas mediante consultas ODBC a la base.\nEjecuci\u00f3n del mantenimiento de particionado",
-              "vendor": {
-                  "name": "Custos Monitoring",
-                  "version": "1.1.0"
-              },
-              "groups": [
-                  {
-                      "name": "Custos"
-                  }
-              ],
-              "items": [
-                  {
-                      "uuid": "35ce8ea2bed649d98505e67a33b141ee",
-                      "name": "Dias disponibles en auditlog",
-                      "type": "ODBC",
-                      "key": "db.odbc.get[Dias que quedan para auditlog,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
-                      "delay": "1d",
-                      "history": "90d",
-                      "value_type": "TEXT",
-                      "trends": "0",
-                      "params": "CALL partition_daysleft(\"{$CTRLPART.DB.NAME}\",\"auditlog\")",
-                      "username": "{$CTRLPART.DB.USER}",
-                      "password": "{$CTRLPART.DB.PASSWORD}",
-                      "description": "Cantidad de d\u00edas enteros disponibles para insertar en la tabla",
-                      "preprocessing": [
-                          {
-                              "type": "JSONPATH",
-                              "parameters": [
-                                  "$.[0].DaysLeft"
-                              ]
-                          },
-                          {
-                              "type": "REGEX",
-                              "parameters": [
-                                  "\\d+",
-                                  "\\0"
-                              ],
-                              "error_handler": "CUSTOM_ERROR",
-                              "error_handler_params": "La tabla no est\u00e1 particionada"
-                          }
-                      ],
-                      "tags": [
-                          {
-                              "tag": "Application",
-                              "value": "Control"
-                          },
-                          {
-                              "tag": "Application",
-                              "value": "Particionado"
-                          }
-                      ],
-                      "triggers": [
-                          {
-                              "uuid": "ceb4c23f785b49029dbcde51b1fcf97f",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para auditlog,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:auditlog}",
-                              "name": "Cantidad de d\u00edas en auditlog menores a {$CTRLPART.DIASLEFT.HIGH:auditlog}",
-                              "priority": "HIGH",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES"
-                          },
-                          {
-                              "uuid": "7597da98536a4ba8ada83d3b4db108c4",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para auditlog,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.INFO:auditlog}",
-                              "name": "Cantidad de d\u00edas en auditlog menores a {$CTRLPART.DIASLEFT.INFO:auditlog}",
-                              "priority": "INFO",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES",
-                              "dependencies": [
-                                  {
-                                      "name": "Cantidad de d\u00edas en history menores a {$CTRLPART.DIASLEFT.HIGH:history}",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history}"
-                                  }
-                              ]
-                          },
-                          {
-                              "uuid": "a2f5b053b9e14accb17a67ef0cfdef93",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para auditlog,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.WARNING:auditlog}",
-                              "name": "Cantidad de d\u00edas en auditlog menores a {$CTRLPART.DIASLEFT.WARNING:auditlog}",
-                              "priority": "WARNING",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES",
-                              "dependencies": [
-                                  {
-                                      "name": "Cantidad de d\u00edas en history menores a {$CTRLPART.DIASLEFT.HIGH:history}",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history}"
-                                  }
-                              ]
-                          }
-                      ]
-                  },
-                  {
-                      "uuid": "a90235e9a0ae47daa929e54761f18136",
-                      "name": "Dias disponibles en history",
-                      "type": "ODBC",
-                      "key": "db.odbc.get[Dias que quedan para history,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
-                      "delay": "1d",
-                      "history": "90d",
-                      "params": "CALL partition_daysleft(\"{$CTRLPART.DB.NAME}\",\"history\")",
-                      "username": "{$CTRLPART.DB.USER}",
-                      "password": "{$CTRLPART.DB.PASSWORD}",
-                      "description": "Cantidad de d\u00edas enteros disponibles para insertar en la tabla",
-                      "preprocessing": [
-                          {
-                              "type": "JSONPATH",
-                              "parameters": [
-                                  "$.[0].DaysLeft"
-                              ]
-                          },
-                          {
-                              "type": "REGEX",
-                              "parameters": [
-                                  "\\d+",
-                                  "\\0"
-                              ],
-                              "error_handler": "CUSTOM_ERROR",
-                              "error_handler_params": "La tabla no est\u00e1 particionada"
-                          }
-                      ],
-                      "tags": [
-                          {
-                              "tag": "Application",
-                              "value": "Control"
-                          },
-                          {
-                              "tag": "Application",
-                              "value": "Particionado"
-                          }
-                      ],
-                      "triggers": [
-                          {
-                              "uuid": "6ed1c21ae355454aa3ca2d952d25ebfc",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history}",
-                              "name": "Cantidad de d\u00edas en history menores a {$CTRLPART.DIASLEFT.HIGH:history}",
-                              "priority": "HIGH",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES"
-                          },
-                          {
-                              "uuid": "6132f501cb1b4ba883cfd2753d7f67e7",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.INFO:history}",
-                              "name": "Cantidad de d\u00edas en history menores a {$CTRLPART.DIASLEFT.INFO:history}",
-                              "priority": "INFO",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES",
-                              "dependencies": [
-                                  {
-                                      "name": "Cantidad de d\u00edas en history menores a {$CTRLPART.DIASLEFT.HIGH:history}",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history}"
-                                  }
-                              ]
-                          },
-                          {
-                              "uuid": "5de61fff04cf44d0ab74d660c6ca6413",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.WARNING:history}",
-                              "name": "Cantidad de d\u00edas en history menores a {$CTRLPART.DIASLEFT.WARNING:history}",
-                              "priority": "WARNING",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES",
-                              "dependencies": [
-                                  {
-                                      "name": "Cantidad de d\u00edas en history menores a {$CTRLPART.DIASLEFT.HIGH:history}",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history}"
-                                  }
-                              ]
-                          }
-                      ]
-                  },
-                  {
-                      "uuid": "42d7d42a85cb463fbca848d718a13624",
-                      "name": "Dias Disponibles en history_bin",
-                      "type": "ODBC",
-                      "key": "db.odbc.get[Dias que quedan para history_bin,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
-                      "value_type": "TEXT",
-                      "trends": "0",
-                      "params": "CALL partition_daysleft(\"{$CTRLPART.DB.NAME}\",\"history_bin\")",
-                      "username": "{$CTRLPART.DB.USER}",
-                      "password": "{$CTRLPART.DB.PASSWORD}",
-                      "description": "Cantidad de d\u00edas enteros disponibles para insertar en la tabla",
-                      "preprocessing": [
-                          {
-                              "type": "JSONPATH",
-                              "parameters": [
-                                  "$.[0].DaysLeft"
-                              ]
-                          },
-                          {
-                              "type": "REGEX",
-                              "parameters": [
-                                  "\\d+",
-                                  "\\0"
-                              ],
-                              "error_handler": "CUSTOM_ERROR",
-                              "error_handler_params": "La tabla no esta particionada"
-                          }
-                      ],
-                      "tags": [
-                          {
-                              "tag": "Application",
-                              "value": "Control"
-                          },
-                          {
-                              "tag": "Application",
-                              "value": "Particionado"
-                          }
-                      ],
-                      "triggers": [
-                          {
-                              "uuid": "eb295a15d90d4b5ea904a50dc309d26b",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_bin,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_bin}",
-                              "name": "Cantidad de d\u00edas en history_bin menores a {$CTRLPART.DIASLEFT.HIGH:history_bin}",
-                              "priority": "HIGH"
-                          },
-                          {
-                              "uuid": "91ed0398f0f8484b9dd67b9e6f705035",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_bin,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.INFO:history_bin}",
-                              "name": "Cantidad de d\u00edas en history_bin menores a {$CTRLPART.DIASLEFT.INFO:history_bin}",
-                              "priority": "INFO",
-                              "dependencies": [
-                                  {
-                                      "name": "Cantidad de d\u00edas en history_bin menores a {$CTRLPART.DIASLEFT.HIGH:history_bin}",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_bin,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_bin}"
-                                  }
-                              ]
-                          },
-                          {
-                              "uuid": "51de6091dcbf46a3af1cb2080452f89c",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_bin,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.WARNING:history_bin}",
-                              "name": "Cantidad de d\u00edas en history_bin menores a {$CTRLPART.DIASLEFT.WARNING:history_bin}",
-                              "priority": "WARNING",
-                              "dependencies": [
-                                  {
-                                      "name": "Cantidad de d\u00edas en history_bin menores a {$CTRLPART.DIASLEFT.HIGH:history_bin}",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_bin,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_bin}"
-                                  }
-                              ]
-                          }
-                      ]
-                  },
-                  {
-                      "uuid": "5c7c2a382579442bada9f0136dd17bf3",
-                      "name": "Dias disponibles en history_log",
-                      "type": "ODBC",
-                      "key": "db.odbc.get[Dias que quedan para history_log,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
-                      "delay": "1d",
-                      "history": "90d",
-                      "params": "CALL partition_daysleft(\"{$CTRLPART.DB.NAME}\",\"history_log\")",
-                      "username": "{$CTRLPART.DB.USER}",
-                      "password": "{$CTRLPART.DB.PASSWORD}",
-                      "description": "Cantidad de d\u00edas enteros disponibles para insertar en la tabla",
-                      "preprocessing": [
-                          {
-                              "type": "JSONPATH",
-                              "parameters": [
-                                  "$.[0].DaysLeft"
-                              ]
-                          },
-                          {
-                              "type": "REGEX",
-                              "parameters": [
-                                  "\\d+",
-                                  "\\0"
-                              ],
-                              "error_handler": "CUSTOM_ERROR",
-                              "error_handler_params": "La tabla no est\u00e1 particionada"
-                          }
-                      ],
-                      "tags": [
-                          {
-                              "tag": "Application",
-                              "value": "Control"
-                          },
-                          {
-                              "tag": "Application",
-                              "value": "Particionado"
-                          }
-                      ],
-                      "triggers": [
-                          {
-                              "uuid": "2227783a94884c07b2dbe979f59af594",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_log,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_log}",
-                              "name": "Cantidad de d\u00edas en history_log menores a {$CTRLPART.DIASLEFT.HIGH:history_log}",
-                              "priority": "HIGH",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES"
-                          },
-                          {
-                              "uuid": "52e554128c9f4e84b199c9570aa03d98",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_log,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.INFO:history_log}",
-                              "name": "Cantidad de d\u00edas en history_log menores a {$CTRLPART.DIASLEFT.INFO:history_log}",
-                              "priority": "INFO",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES",
-                              "dependencies": [
-                                  {
-                                      "name": "Cantidad de d\u00edas en history_log menores a {$CTRLPART.DIASLEFT.HIGH:history_log}",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_log,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_log}"
-                                  }
-                              ]
-                          },
-                          {
-                              "uuid": "3da4b0c403ac480a83abcd127e5ca95d",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_log,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.WARNING:history_log}",
-                              "name": "Cantidad de d\u00edas en history_log menores a {$CTRLPART.DIASLEFT.WARNING:history_log}",
-                              "priority": "WARNING",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES",
-                              "dependencies": [
-                                  {
-                                      "name": "Cantidad de d\u00edas en history_log menores a {$CTRLPART.DIASLEFT.HIGH:history_log}",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_log,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_log}"
-                                  }
-                              ]
-                          }
-                      ]
-                  },
-                  {
-                      "uuid": "3944b7e62f724cfeb797fdad58e5c0a7",
-                      "name": "Dias disponibles en history_str",
-                      "type": "ODBC",
-                      "key": "db.odbc.get[Dias que quedan para history_str,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
-                      "delay": "1d",
-                      "history": "90d",
-                      "params": "CALL partition_daysleft(\"{$CTRLPART.DB.NAME}\",\"history_str\")",
-                      "username": "{$CTRLPART.DB.USER}",
-                      "password": "{$CTRLPART.DB.PASSWORD}",
-                      "description": "Cantidad de d\u00edas enteros disponibles para insertar en la tabla",
-                      "preprocessing": [
-                          {
-                              "type": "JSONPATH",
-                              "parameters": [
-                                  "$.[0].DaysLeft"
-                              ]
-                          },
-                          {
-                              "type": "REGEX",
-                              "parameters": [
-                                  "\\d+",
-                                  "\\0"
-                              ],
-                              "error_handler": "CUSTOM_ERROR",
-                              "error_handler_params": "La tabla no est\u00e1 particionada"
-                          }
-                      ],
-                      "tags": [
-                          {
-                              "tag": "Application",
-                              "value": "Control"
-                          },
-                          {
-                              "tag": "Application",
-                              "value": "Particionado"
-                          }
-                      ],
-                      "triggers": [
-                          {
-                              "uuid": "0c9b330acf2740049734147d01a7199e",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_str,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_str}",
-                              "name": "Cantidad de d\u00edas en history_str menores a {$CTRLPART.DIASLEFT.HIGH:history_str}",
-                              "priority": "HIGH",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES"
-                          },
-                          {
-                              "uuid": "3372a46986194124bd686cbc033ca8f2",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_str,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.INFO:history_str}",
-                              "name": "Cantidad de d\u00edas en history_str menores a {$CTRLPART.DIASLEFT.INFO:history_str}",
-                              "priority": "INFO",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES",
-                              "dependencies": [
-                                  {
-                                      "name": "Cantidad de d\u00edas en history_str menores a {$CTRLPART.DIASLEFT.HIGH:history_str}",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_str,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_str}"
-                                  }
-                              ]
-                          },
-                          {
-                              "uuid": "167a9c77ded64b1687df944cc3305c15",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_str,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.WARNING:history_str}",
-                              "name": "Cantidad de d\u00edas en history_str menores a {$CTRLPART.DIASLEFT.WARNING:history_str}",
-                              "priority": "WARNING",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES",
-                              "dependencies": [
-                                  {
-                                      "name": "Cantidad de d\u00edas en history_str menores a {$CTRLPART.DIASLEFT.HIGH:history_str}",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_str,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_str}"
-                                  }
-                              ]
-                          }
-                      ]
-                  },
-                  {
-                      "uuid": "10b3391ed4074c3f804eb3241b0a24ea",
-                      "name": "Dias disponibles en history_text",
-                      "type": "ODBC",
-                      "key": "db.odbc.get[Dias que quedan para history_text,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
-                      "delay": "1d",
-                      "history": "90d",
-                      "params": "CALL partition_daysleft(\"{$CTRLPART.DB.NAME}\",\"history_text\")",
-                      "username": "{$CTRLPART.DB.USER}",
-                      "password": "{$CTRLPART.DB.PASSWORD}",
-                      "description": "Cantidad de d\u00edas enteros disponibles para insertar en la tabla",
-                      "preprocessing": [
-                          {
-                              "type": "JSONPATH",
-                              "parameters": [
-                                  "$.[0].DaysLeft"
-                              ]
-                          },
-                          {
-                              "type": "REGEX",
-                              "parameters": [
-                                  "\\d+",
-                                  "\\0"
-                              ],
-                              "error_handler": "CUSTOM_ERROR",
-                              "error_handler_params": "La tabla no est\u00e1 particionada"
-                          }
-                      ],
-                      "tags": [
-                          {
-                              "tag": "Application",
-                              "value": "Control"
-                          },
-                          {
-                              "tag": "Application",
-                              "value": "Particionado"
-                          }
-                      ],
-                      "triggers": [
-                          {
-                              "uuid": "ea69db0f8c414ddb86b41235b1e182db",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_text,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_text}",
-                              "name": "Cantidad de d\u00edas en history_text menores a {$CTRLPART.DIASLEFT.HIGH:history_text}",
-                              "priority": "HIGH",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES"
-                          },
-                          {
-                              "uuid": "efaa0376132445b6a2df33fdd2e592e2",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_text,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.INFO:history_text}",
-                              "name": "Cantidad de d\u00edas en history_text menores a {$CTRLPART.DIASLEFT.INFO:history_text}",
-                              "priority": "INFO",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES",
-                              "dependencies": [
-                                  {
-                                      "name": "Cantidad de d\u00edas en history_text menores a {$CTRLPART.DIASLEFT.HIGH:history_text}",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_text,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_text}"
-                                  }
-                              ]
-                          },
-                          {
-                              "uuid": "42403c4fa826499ea2738078657b6cf3",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_text,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.WARNING:history_text}",
-                              "name": "Cantidad de d\u00edas en history_text menores a {$CTRLPART.DIASLEFT.WARNING:history_text}",
-                              "priority": "WARNING",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES",
-                              "dependencies": [
-                                  {
-                                      "name": "Cantidad de d\u00edas en history_text menores a {$CTRLPART.DIASLEFT.HIGH:history_text}",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_text,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_text}"
-                                  }
-                              ]
-                          }
-                      ]
-                  },
-                  {
-                      "uuid": "58982381152a4a539b5a8ada49ff2677",
-                      "name": "Dias disponibles en history_uint",
-                      "type": "ODBC",
-                      "key": "db.odbc.get[Dias que quedan para history_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
-                      "delay": "1d",
-                      "history": "90d",
-                      "params": "CALL partition_daysleft(\"{$CTRLPART.DB.NAME}\",\"history_uint\")",
-                      "username": "{$CTRLPART.DB.USER}",
-                      "password": "{$CTRLPART.DB.PASSWORD}",
-                      "description": "Cantidad de d\u00edas enteros disponibles para insertar en la tabla",
-                      "preprocessing": [
-                          {
-                              "type": "JSONPATH",
-                              "parameters": [
-                                  "$.[0].DaysLeft"
-                              ]
-                          },
-                          {
-                              "type": "REGEX",
-                              "parameters": [
-                                  "\\d+",
-                                  "\\0"
-                              ],
-                              "error_handler": "CUSTOM_ERROR",
-                              "error_handler_params": "La tabla no est\u00e1 particionada"
-                          }
-                      ],
-                      "tags": [
-                          {
-                              "tag": "Application",
-                              "value": "Control"
-                          },
-                          {
-                              "tag": "Application",
-                              "value": "Particionado"
-                          }
-                      ],
-                      "triggers": [
-                          {
-                              "uuid": "284e656ffb1e4979808f48de7b4dc6b7",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_uint}",
-                              "name": "Cantidad de d\u00edas en history_uint menores a {$CTRLPART.DIASLEFT.HIGH:history_uint}",
-                              "priority": "HIGH",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES"
-                          },
-                          {
-                              "uuid": "229ea2dceb63424eb2150d2ac48ad408",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.INFO:history_uint}",
-                              "name": "Cantidad de d\u00edas en history_uint menores a {$CTRLPART.DIASLEFT.INFO:history_uint}",
-                              "priority": "INFO",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES",
-                              "dependencies": [
-                                  {
-                                      "name": "Cantidad de d\u00edas en history_uint menores a {$CTRLPART.DIASLEFT.HIGH:history_uint}",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_uint}"
-                                  }
-                              ]
-                          },
-                          {
-                              "uuid": "5f0763a7fd9e43bd8af0cb06884737eb",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.WARNING:history_uint}",
-                              "name": "Cantidad de d\u00edas en history_uint menores a {$CTRLPART.DIASLEFT.WARNING:history_uint}",
-                              "priority": "WARNING",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES",
-                              "dependencies": [
-                                  {
-                                      "name": "Cantidad de d\u00edas en history_uint menores a {$CTRLPART.DIASLEFT.HIGH:history_uint}",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_uint}"
-                                  }
-                              ]
-                          }
-                      ]
-                  },
-                  {
-                      "uuid": "3b8735d25a834068b89789d9480b575d",
-                      "name": "Dias disponibles en trends",
-                      "type": "ODBC",
-                      "key": "db.odbc.get[Dias que quedan para trends,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
-                      "delay": "1d",
-                      "history": "90d",
-                      "params": "CALL partition_daysleft(\"{$CTRLPART.DB.NAME}\",\"trends\")",
-                      "username": "{$CTRLPART.DB.USER}",
-                      "password": "{$CTRLPART.DB.PASSWORD}",
-                      "description": "Cantidad de d\u00edas enteros disponibles para insertar en la tabla",
-                      "preprocessing": [
-                          {
-                              "type": "JSONPATH",
-                              "parameters": [
-                                  "$.[0].DaysLeft"
-                              ]
-                          },
-                          {
-                              "type": "REGEX",
-                              "parameters": [
-                                  "\\d+",
-                                  "\\0"
-                              ],
-                              "error_handler": "CUSTOM_ERROR",
-                              "error_handler_params": "La tabla no est\u00e1 particionada"
-                          }
-                      ],
-                      "tags": [
-                          {
-                              "tag": "Application",
-                              "value": "Control"
-                          },
-                          {
-                              "tag": "Application",
-                              "value": "Particionado"
-                          }
-                      ],
-                      "triggers": [
-                          {
-                              "uuid": "98bb8157330740ea95b860928fc4afe4",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:trends}",
-                              "name": "Cantidad de d\u00edas en trends menores a {$CTRLPART.DIASLEFT.HIGH:trends}",
-                              "priority": "HIGH",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES"
-                          },
-                          {
-                              "uuid": "74ba2d4a9ff4411d913e36a3d32bf7fa",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.INFO:trends}",
-                              "name": "Cantidad de d\u00edas en trends menores a {$CTRLPART.DIASLEFT.INFO:trends}",
-                              "priority": "INFO",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES",
-                              "dependencies": [
-                                  {
-                                      "name": "Cantidad de d\u00edas en trends menores a {$CTRLPART.DIASLEFT.HIGH:trends}",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:trends}"
-                                  }
-                              ]
-                          },
-                          {
-                              "uuid": "7fabc3abcc5741a1912a16e29a9fdc3e",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.WARNING:trends}",
-                              "name": "Cantidad de d\u00edas en trends menores a {$CTRLPART.DIASLEFT.WARNING:trends}",
-                              "priority": "WARNING",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES",
-                              "dependencies": [
-                                  {
-                                      "name": "Cantidad de d\u00edas en trends menores a {$CTRLPART.DIASLEFT.HIGH:trends}",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:trends}"
-                                  }
-                              ]
-                          }
-                      ]
-                  },
-                  {
-                      "uuid": "7cb8fd0cb1634b80bb325595da68d988",
-                      "name": "Dias disponibles en trends_uint",
-                      "type": "ODBC",
-                      "key": "db.odbc.get[Dias que quedan para trends_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
-                      "delay": "1d",
-                      "history": "90d",
-                      "params": "CALL partition_daysleft(\"{$CTRLPART.DB.NAME}\",\"trends_uint\")",
-                      "username": "{$CTRLPART.DB.USER}",
-                      "password": "{$CTRLPART.DB.PASSWORD}",
-                      "description": "Cantidad de d\u00edas enteros disponibles para insertar en la tabla",
-                      "preprocessing": [
-                          {
-                              "type": "JSONPATH",
-                              "parameters": [
-                                  "$.[0].DaysLeft"
-                              ]
-                          },
-                          {
-                              "type": "REGEX",
-                              "parameters": [
-                                  "\\d+",
-                                  "\\0"
-                              ],
-                              "error_handler": "CUSTOM_ERROR",
-                              "error_handler_params": "La tabla no est\u00e1 particionada"
-                          }
-                      ],
-                      "tags": [
-                          {
-                              "tag": "Application",
-                              "value": "Control"
-                          },
-                          {
-                              "tag": "Application",
-                              "value": "Particionado"
-                          }
-                      ],
-                      "triggers": [
-                          {
-                              "uuid": "00852c94a0b7472d941aaf3c3b0d7259",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:trends_uint}",
-                              "name": "Cantidad de d\u00edas en trends_uint menores a {$CTRLPART.DIASLEFT.HIGH:trends_uint}",
-                              "priority": "HIGH",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES"
-                          },
-                          {
-                              "uuid": "ea0f3a44eed3479a86345044f016f257",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.INFO:trends_uint}",
-                              "name": "Cantidad de d\u00edas en trends_uint menores a {$CTRLPART.DIASLEFT.INFO:trends_uint}",
-                              "priority": "INFO",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES",
-                              "dependencies": [
-                                  {
-                                      "name": "Cantidad de d\u00edas en trends_uint menores a {$CTRLPART.DIASLEFT.HIGH:trends_uint}",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:trends_uint}"
-                                  }
-                              ]
-                          },
-                          {
-                              "uuid": "6254d63df08647f79387dda801b3ec2d",
-                              "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.WARNING:trends_uint}",
-                              "name": "Cantidad de d\u00edas en trends_uint menores a {$CTRLPART.DIASLEFT.WARNING:trends_uint}",
-                              "priority": "WARNING",
-                              "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
-                              "manual_close": "YES",
-                              "dependencies": [
-                                  {
-                                      "name": "Cantidad de d\u00edas en trends_uint menores a {$CTRLPART.DIASLEFT.HIGH:trends_uint}",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:trends_uint}"
-                                  }
-                              ]
-                          }
-                      ]
-                  },
-                  {
-                      "uuid": "5a8678d0fe4c4e96bd6cf74256455d1c",
-                      "name": "Ejecuci\u00f3n Mantenimiento Particionado ODBC",
-                      "type": "ODBC",
-                      "key": "db.odbc.get[Ejecucion Particionado ODBC,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
-                      "delay": "1d",
-                      "history": "1w",
-                      "value_type": "TEXT",
-                      "trends": "0",
-                      "params": "CALL partition_maintenance_all(\"{$CTRLPART.DB.NAME}\");",
-                      "username": "{$CTRLPART.DB.USER}",
-                      "password": "{$CTRLPART.DB.PASSWORD}",
-                      "description": "Ejecuta el stored procedure que mantiene las particiones en la DB de Zabbix",
-                      "tags": [
-                          {
-                              "tag": "Application",
-                              "value": "Ejecucion"
-                          },
-                          {
-                              "tag": "Application",
-                              "value": "Particionado"
-                          }
-                      ]
-                  },
-                  {
-                      "uuid": "143337baf37d46c6b8ac2ab9d0139706",
-                      "name": "All Partition Sizes in MB",
-                      "type": "ODBC",
-                      "key": "db.odbc.get[particionSizesMB,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
-                      "delay": "4h",
-                      "value_type": "TEXT",
-                      "trends": "0",
-                      "params": "SELECT \n    p.partition_ordinal_position AS partition_number,\n    p.table_name,\n    p.partition_method,\n    SUM(p.data_length + p.index_length) AS partition_size,\n    CONCAT(SUBSTRING(p.partition_name, 8, 2), \"/\",\n    SUBSTRING(p.partition_name, 6, 2), \"/\", \n    SUBSTRING(p.partition_name, 2, 4) ) AS fecha\nFROM \n    information_schema.PARTITIONS p\nJOIN \n    information_schema.tables t\n    ON p.table_schema = t.table_schema\n    AND p.table_name = t.table_name\nWHERE \n    p.table_schema = 'zabbix' \n    AND p.partition_ordinal_position is not null\nGROUP BY \n    p.partition_ordinal_position, p.table_name, p.partition_method, p.partition_name\nORDER BY \n    p.partition_ordinal_position;",
-                      "username": "zabbix",
-                      "password": "password",
-                      "tags": [
-                          {
-                              "tag": "Application",
-                              "value": "Control"
-                          },
-                          {
-                              "tag": "Application",
-                              "value": "Particionado"
-                          },
-                          {
-                              "tag": "raw"
-                          }
-                      ]
-                  },
-                  {
-                      "uuid": "1197c416d32b46209652ad7ba4b0ee71",
-                      "name": "Total Size of DB",
-                      "type": "ODBC",
-                      "key": "db.odbc.select[sizeInMB,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
-                      "delay": "4h",
-                      "value_type": "FLOAT",
-                      "units": "B",
-                      "params": "SELECT \n    SUM(data_length + index_length) AS database_size\nFROM \n    information_schema.tables\nWHERE \n    table_schema = 'zabbix';",
-                      "username": "zabbix",
-                      "password": "password",
-                      "tags": [
-                          {
-                              "tag": "Application",
-                              "value": "Control"
-                          },
-                          {
-                              "tag": "Application",
-                              "value": "Particionado"
-                          }
-                      ]
-                  },
-                  {
-                      "uuid": "3ffcd26a73d84ff5a87e8e81bfe9c89e",
-                      "name": "Creaci\u00f3n de Stored procedures",
-                      "type": "SSH",
-                      "key": "ssh.run[mysql create stored procedures,{$CTRLPART.SSH.HOST},{$CTRLPART.SSH.PORT}]",
-                      "delay": "0;md31wd1h0m0s0",
-                      "history": "90d",
-                      "value_type": "TEXT",
-                      "trends": "0",
-                      "status": "DISABLED",
-                      "params": "echo 'DELIMITER |\ndrop PROCEDURE if exists partition_daysleft |\nCREATE PROCEDURE `partition_daysleft`(SCHEMANAME varchar(64), TABLENAME varchar(64))\nBEGIN\n   DECLARE UltDia int;\n   SELECT PARTITION_DESCRIPTION INTO UltDia\n     FROM information_schema.partitions\n     WHERE table_schema = SCHEMANAME\n       and table_name = TABLENAME\n     order by PARTITION_DESCRIPTION desc limit 1;\n   SELECT datediff( From_Unixtime(UltDia) , Now() ) AS \"DaysLeft\";\nEND |\ndrop PROCEDURE if exists partition_create |\nCREATE PROCEDURE `partition_create`(SCHEMANAME varchar(64), TABLENAME varchar(64), PARTITIONNAME varchar(64), CLOCK int)\nBEGIN\n   DECLARE RETROWS INT;\n   SELECT COUNT(1) INTO RETROWS\n      FROM information_schema.partitions\n      WHERE table_schema = SCHEMANAME\n        AND table_name = TABLENAME\n        AND partition_description >= CLOCK;\n\n   IF RETROWS = 0 THEN\n      insert into logint values ( SCHEMANAME, TABLENAME, \"CREATE PARTITION\", PARTITIONNAME);\n      SET @sql = CONCAT( \"ALTER TABLE \", SCHEMANAME, \".\", TABLENAME, \" ADD PARTITION (PARTITION \",\n                          PARTITIONNAME, \" VALUES LESS THAN (\", CLOCK, \"));\" );\n      PREPARE STMT FROM @sql;\n      EXECUTE STMT;\n      DEALLOCATE PREPARE STMT;\n   ELSE\n      insert into logint values ( SCHEMANAME, TABLENAME, \"CREATE PARTITION\", \"N/A\");\n   END IF;\nEND |\ndrop PROCEDURE if exists partition_drop |\nCREATE PROCEDURE `partition_drop`(SCHEMANAME VARCHAR(64), TABLENAME VARCHAR(64), DELETE_BELOW_PARTITION_DATE BIGINT)\nBEGIN\n   DECLARE done INT DEFAULT FALSE;\n   DECLARE drop_part_name VARCHAR(16);\n   \n   DECLARE myCursor CURSOR FOR\n   SELECT partition_name\n      FROM information_schema.partitions\n      WHERE table_schema = SCHEMANAME\n        AND table_name = TABLENAME\n        AND CAST(SUBSTRING(partition_name FROM 2) AS UNSIGNED) < DELETE_BELOW_PARTITION_DATE;\n   DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;\n\n   SET @alter_header = CONCAT(\"ALTER TABLE \", SCHEMANAME, \".\", TABLENAME, \" DROP PARTITION \");\n   SET @drop_partitions = \"\";\n   \n   OPEN myCursor;\n   read_loop: LOOP\n      FETCH myCursor INTO drop_part_name;\n      IF done THEN\n         LEAVE read_loop;\n      END IF;\n      SET @drop_partitions = IF(@drop_partitions = \"\", drop_part_name, CONCAT(@drop_partitions, \",\", drop_part_name));\n   END LOOP;\n   IF @drop_partitions != \"\" THEN\n      SET @full_sql = CONCAT(@alter_header, @drop_partitions, \";\");\n      PREPARE STMT FROM @full_sql;\n      EXECUTE STMT;\n      DEALLOCATE PREPARE STMT;\n\n      insert into logint values ( SCHEMANAME, TABLENAME, \" DROP PARTITION \", @drop_partitions);\n   ELSE\n      insert into logint values ( SCHEMANAME, TABLENAME, \" DROP PARTITION \", \"N/A\");\n   END IF;\nEND |\ndrop PROCEDURE if exists partition_maintenance |\nCREATE PROCEDURE `partition_maintenance`(SCHEMA_NAME VARCHAR(32), TABLE_NAME VARCHAR(32), KEEP_DATA_DAYS INT, HOURLY_INTERVAL INT, CREATE_NEXT_INTERVALS INT)\nBEGIN\n   DECLARE OLDER_THAN_PARTITION_DATE VARCHAR(16);\n   DECLARE PARTITION_NAME VARCHAR(16);\n   DECLARE OLD_PARTITION_NAME VARCHAR(16);\n   DECLARE LESS_THAN_TIMESTAMP INT;\n   DECLARE CUR_TIME INT;\n\n   CALL partition_verify(SCHEMA_NAME, TABLE_NAME, HOURLY_INTERVAL);\n   SET CUR_TIME = UNIX_TIMESTAMP(DATE_FORMAT(NOW(), \"%Y-%m-%d 00:00:00\"));\n\n   SET @__interval = 1;\n   create_loop: LOOP\n      IF @__interval > CREATE_NEXT_INTERVALS THEN\n         LEAVE create_loop;\n      END IF;\n\n      SET LESS_THAN_TIMESTAMP = CUR_TIME + (HOURLY_INTERVAL * @__interval * 3600);\n      SET PARTITION_NAME = FROM_UNIXTIME(CUR_TIME + HOURLY_INTERVAL * (@__interval - 1) * 3600, \"p%Y%m%d%H00\");\n      IF(PARTITION_NAME != OLD_PARTITION_NAME) THEN\n          CALL partition_create(SCHEMA_NAME, TABLE_NAME, PARTITION_NAME, LESS_THAN_TIMESTAMP);\n      END IF;\n      SET @__interval=@__interval+1;\n      SET OLD_PARTITION_NAME = PARTITION_NAME;\n   END LOOP;\n\n   SET OLDER_THAN_PARTITION_DATE=DATE_FORMAT(DATE_SUB(NOW(), INTERVAL KEEP_DATA_DAYS DAY), \"%Y%m%d0000\");\n   CALL partition_drop(SCHEMA_NAME, TABLE_NAME, OLDER_THAN_PARTITION_DATE);\nEND |\ndrop PROCEDURE if exists partition_maintenance_all |\nCREATE PROCEDURE `partition_maintenance_all`(SCHEMA_NAME VARCHAR(32))\nBEGIN\n   CREATE TEMPORARY TABLE logint(schemaname varchar(255), tablename varchar(255), action varchar(255), partitionname varchar(255));\n\n   CALL partition_maintenance(SCHEMA_NAME, \"history\",      {$CTRLPART.HISTORY.KEEPINT:history},      {$CTRLPART.HISTORY.HOURSINT:history},     {$CTRLPART.HISTORY.NEXTINT:history}   );\n   CALL partition_maintenance(SCHEMA_NAME, \"history_log\",  {$CTRLPART.HISTORY.KEEPINT:history_log},  {$CTRLPART.HISTORY.HOURSINT:history},     {$CTRLPART.HISTORY.NEXTINT:history}   );\n   CALL partition_maintenance(SCHEMA_NAME, \"history_str\",  {$CTRLPART.HISTORY.KEEPINT:history_str},  {$CTRLPART.HISTORY.HOURSINT:history},     {$CTRLPART.HISTORY.NEXTINT:history}   );\n   CALL partition_maintenance(SCHEMA_NAME, \"history_text\", {$CTRLPART.HISTORY.KEEPINT:history_text}, {$CTRLPART.HISTORY.HOURSINT:history},     {$CTRLPART.HISTORY.NEXTINT:history}   );\n   CALL partition_maintenance(SCHEMA_NAME, \"history_uint\", {$CTRLPART.HISTORY.KEEPINT:history_uint}, {$CTRLPART.HISTORY.HOURSINT:history},     {$CTRLPART.HISTORY.NEXTINT:history}   );\n   CALL partition_maintenance(SCHEMA_NAME, \"history_bin\", {$CTRLPART.HISTORY.KEEPINT:history_uint}, {$CTRLPART.HISTORY.HOURSINT:history},     {$CTRLPART.HISTORY.NEXTINT:history}   );\n   CALL partition_maintenance(SCHEMA_NAME, \"trends\",       {$CTRLPART.TRENDS.KEEPINT:trends},        {$CTRLPART.TRENDS.HOURSINT:trends},       {$CTRLPART.TRENDS.NEXTINT:trends}     );\n   CALL partition_maintenance(SCHEMA_NAME, \"trends_uint\",  {$CTRLPART.TRENDS.KEEPINT:trends_uint},   {$CTRLPART.TRENDS.HOURSINT:trends_uint},  {$CTRLPART.TRENDS.NEXTINT:trends_uint});\n\n   SELECT distinct * from logint;\nEND |\ndrop PROCEDURE if exists partition_verify |\nCREATE PROCEDURE `partition_verify`(SCHEMANAME VARCHAR(64), TABLENAME VARCHAR(64), HOURLYINTERVAL INT(11))\nBEGIN\n   DECLARE PARTITION_NAME VARCHAR(16);\n   DECLARE RETROWS INT(11);\n   DECLARE FUTURE_TIMESTAMP TIMESTAMP;\n\n   SELECT COUNT(1) INTO RETROWS\n      FROM information_schema.partitions\n      WHERE table_schema = SCHEMANAME\n        AND table_name = TABLENAME\n        AND partition_name IS NULL;\n\n   IF RETROWS = 1 THEN\n      SET FUTURE_TIMESTAMP = TIMESTAMPADD(HOUR, HOURLYINTERVAL, CONCAT(CURDATE(), \" \", \"00:00:00\"));\n      SET PARTITION_NAME = DATE_FORMAT(CURDATE(), \"p%Y%m%d%H00\");\n\n      SET @__PARTITION_SQL = CONCAT(\"ALTER TABLE \", SCHEMANAME, \".\", TABLENAME, \" PARTITION BY RANGE(`clock`)\");\n      SET @__PARTITION_SQL = CONCAT(@__PARTITION_SQL, \"(PARTITION \", PARTITION_NAME,\n                                     \" VALUES LESS THAN (\", UNIX_TIMESTAMP(FUTURE_TIMESTAMP), \"));\");\n      \n      PREPARE STMT FROM @__PARTITION_SQL;\n      EXECUTE STMT;\n      DEALLOCATE PREPARE STMT;\n   END IF;\nEND |' | mysql -h {$CTRLPART.DB.HOST} -P {$CTRLPART.DB.PORT} -u {$CTRLPART.DB.USER} -p{$CTRLPART.DB.PASSWORD} {$CTRLPART.DB.NAME} -v",
-                      "username": "{$CTRLPART.SSH.USER}",
-                      "password": "{$CTRLPART.SSH.PASSWORD}",
-                      "description": "Crea los stored prodedures para el mantenimiento del particionado.",
-                      "preprocessing": [
-                          {
-                              "type": "JAVASCRIPT",
-                              "parameters": [
-                                  "if (value.length==0){\n return \"No hay datos\"\n}\n\nres = value.match(/CREATE PROCEDURE `(.*)`/g)\nerror=\"\"\n\nfunction contains(a, obj) {\n    var i = a.length;\n    while (i--) {\n       if (a[i] == obj) {\n           return true;\n       }\n    }\n    return false;\n}\n\nfunction ExPr(pr,resultado){\n if (!contains(resultado,\"CREATE PROCEDURE `\"+pr+\"`\")) {\n  if (error.length == 0) {\n    error=pr\n  } else {\n    error=error+\", \"+pr\n  }\n }\n}\n\nExPr(\"partition_daysleft\",res)\nExPr(\"partition_create\",res)\nExPr(\"partition_drop\",res)\nExPr(\"partition_maintenance\",res)\nExPr(\"partition_maintenance_all\",res)\nExPr(\"partition_verify\",res)\n\nif (error.length==0){\n error=\"OK\"\n} else {\n error=\"Faltaron crear: \"+error\n}\n\nreturn error"
-                              ]
-                          }
-                      ],
-                      "tags": [
-                          {
-                              "tag": "Application",
-                              "value": "Control"
-                          },
-                          {
-                              "tag": "Application",
-                              "value": "Particionado"
-                          }
-                      ]
-                  }
-              ],
-              "discovery_rules": [
-                  {
-                      "uuid": "7b1805c58aa046a98355295b2b00e1f6",
-                      "name": "Partition LLD",
-                      "type": "DEPENDENT",
-                      "key": "allPartitions.lld",
-                      "delay": "0",
-                      "item_prototypes": [
-                          {
-                              "uuid": "a1c72fa065b34285bd824566e3e8490c",
-                              "name": "Size of Partition {#DATE} in {#TABLE}",
-                              "type": "DEPENDENT",
-                              "key": "partition.[{#PARTITION_NUMBER}.{#TABLE}]",
-                              "delay": "0",
-                              "value_type": "FLOAT",
-                              "units": "B",
-                              "preprocessing": [
-                                  {
-                                      "type": "JSONPATH",
-                                      "parameters": [
-                                          "$[?(@.partition_number == '{#PARTITION_NUMBER}' && (@.TABLE_NAME == '{#TABLE}') )].partition_size.first()"
-                                      ]
-                                  },
-                                  {
-                                      "type": "DISCARD_UNCHANGED_HEARTBEAT",
-                                      "parameters": [
-                                          "3600"
-                                      ]
-                                  }
-                              ],
-                              "master_item": {
-                                  "key": "db.odbc.get[particionSizesMB,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]"
-                              },
-                              "tags": [
-                                  {
-                                      "tag": "number",
-                                      "value": "{#PARTITION_NUMBER}"
-                                  },
-                                  {
-                                      "tag": "table",
-                                      "value": "{#TABLE}"
-                                  }
-                              ],
-                              "trigger_prototypes": [
-                                  {
-                                      "uuid": "197013b1f7ad47eea99797b15343801d",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/partition.[{#PARTITION_NUMBER}.{#TABLE}])>{$CTRLPART.DB.SIZE.CRIT:\"{#TABLE}\"}",
-                                      "name": "Threshold superado en particion {#PARTITION_NUMBER} de {#TABLE}",
-                                      "priority": "HIGH",
-                                      "tags": [
-                                          {
-                                              "tag": "test"
-                                          }
-                                      ]
-                                  },
-                                  {
-                                      "uuid": "6c64688be40944b7acf6eb63792e8c81",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/partition.[{#PARTITION_NUMBER}.{#TABLE}])>{$CTRLPART.DB.SIZE.WARN:\"{#TABLE}\"}",
-                                      "name": "Threshold superado en particion {#PARTITION_NUMBER} de {#TABLE}",
-                                      "priority": "WARNING",
-                                      "tags": [
-                                          {
-                                              "tag": "test"
-                                          }
-                                      ]
-                                  }
-                              ]
-                          },
-                          {
-                              "uuid": "54a154dad64f480e866cf05e9eec1c45",
-                              "name": "Number of partitions for {#TABLE}",
-                              "type": "DEPENDENT",
-                              "key": "total.partitions.[{#TABLE}]",
-                              "delay": "0",
-                              "preprocessing": [
-                                  {
-                                      "type": "JSONPATH",
-                                      "parameters": [
-                                          "$[?(@.TABLE_NAME == '{#TABLENAME}')].partition_number.length()"
-                                      ]
-                                  }
-                              ],
-                              "master_item": {
-                                  "key": "db.odbc.get[particionSizesMB,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]"
-                              },
-                              "trigger_prototypes": [
-                                  {
-                                      "uuid": "d70296a8b2d740949d0a4fc7dd95e647",
-                                      "expression": "last(/Control Particionado MySQL - ODBC Custos/total.partitions.[{#TABLE}])>({$CTRLPART.HISTORY.KEEPINT}+{$CTRLPART.HISTORY.NEXTINT})",
-                                      "name": "Exceso de particiones detectadas para {#TABLE}",
-                                      "priority": "WARNING"
-                                  }
-                              ]
-                          }
-                      ],
-                      "master_item": {
-                          "key": "db.odbc.get[particionSizesMB,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]"
-                      },
-                      "lld_macro_paths": [
-                          {
-                              "lld_macro": "{#DATE}",
-                              "path": "$.fecha"
-                          },
-                          {
-                              "lld_macro": "{#PARTITION_NUMBER}",
-                              "path": "$.partition_number"
-                          },
-                          {
-                              "lld_macro": "{#TABLE}",
-                              "path": "$.TABLE_NAME"
-                          }
-                      ]
-                  }
-              ],
-              "tags": [
-                  {
-                      "tag": "alcance",
-                      "value": "particionado"
-                  },
-                  {
-                      "tag": "aplicacion",
-                      "value": "basededatos"
-                  }
-              ],
-              "macros": [
-                  {
-                      "macro": "{$CTRLPART.DB.CONSTR}",
-                      "value": "Driver=/usr/lib64/libmaodbc.so;Server=127.0.0.1;Port=3306;Database=zabbix",
-                      "description": "Conection String a la DB"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.DSN}",
-                      "description": "Nombre del DSN para conectarse"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.HOST}",
-                      "value": "127.0.0.1",
-                      "description": "Host donde se encuentra la DB para la creaci\u00f3n de los stored procedures"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.NAME}",
-                      "value": "zabbix",
-                      "description": "Nombre de la base de datos en donde se mantienen las particiones"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.PASSWORD}",
-                      "description": "Password del usuario en la DB"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.PORT}",
-                      "value": "3306",
-                      "description": "Puerto para la conexi\u00f3n a la DB"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.SIZE.CRIT}",
-                      "description": "Tama\u00f1o de partici\u00f3n necesario para triggerear una alerta CRITICAL"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.SIZE.CRIT:\"history\"}",
-                      "value": "50000000"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.SIZE.CRIT:\"history_log\"}",
-                      "value": "50000000"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.SIZE.CRIT:\"history_str\"}",
-                      "value": "50000000"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.SIZE.CRIT:\"history_text\"}",
-                      "value": "50000000"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.SIZE.CRIT:\"history_uint\"}",
-                      "value": "50000000"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.SIZE.CRIT:\"trends\"}",
-                      "value": "50000000"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.SIZE.CRIT:\"trends_uint\"}",
-                      "value": "50000000"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.SIZE.WARN}",
-                      "description": "Tama\u00f1o de partici\u00f3n necesario para triggerear una alerta AVERAGE"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.SIZE.WARN:\"history\"}",
-                      "value": "40000000"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.SIZE.WARN:\"history_log\"}",
-                      "value": "40000000"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.SIZE.WARN:\"history_str\"}",
-                      "value": "40000000"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.SIZE.WARN:\"history_text\"}",
-                      "value": "40000000"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.SIZE.WARN:\"history_uint\"}",
-                      "value": "40000000"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.SIZE.WARN:\"trends\"}",
-                      "value": "40000000"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.SIZE.WARN:\"trends_uint\"}",
-                      "value": "40000000"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DB.USER}",
-                      "description": "Usuario para conectarse a la DB"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DIASLEFT.HIGH}",
-                      "value": "2",
-                      "description": "Dias limite para alarma HIGH"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DIASLEFT.INFO}",
-                      "value": "9",
-                      "description": "Dias limite alarma de INFO"
-                  },
-                  {
-                      "macro": "{$CTRLPART.DIASLEFT.WARNING}",
-                      "value": "7",
-                      "description": "Dias limite alarma de WARNING"
-                  },
-                  {
-                      "macro": "{$CTRLPART.HISTORY.HOURSINT}",
-                      "value": "24",
-                      "description": "Horas de intervalo de las tablas de history.  Acepta contexto con el nombre de la tabla"
-                  },
-                  {
-                      "macro": "{$CTRLPART.HISTORY.KEEPINT}",
-                      "value": "30",
-                      "description": "Intervalos a conservar en las tablas de history. Acepta contexto con el nombre de la tabla"
-                  },
-                  {
-                      "macro": "{$CTRLPART.HISTORY.NEXTINT}",
-                      "value": "10",
-                      "description": "Cantidad  de particiones a futuro para las tablas de history.  Acepta contexto con el nombre de la tabla"
-                  },
-                  {
-                      "macro": "{$CTRLPART.SSH.HOST}",
-                      "value": "127.0.0.1",
-                      "description": "Host donde se encuentra la DB para conexi\u00f3n por SSH"
-                  },
-                  {
-                      "macro": "{$CTRLPART.SSH.PASSWORD}",
-                      "description": "Password donde se encuentra la DB para conexi\u00f3n por SSH"
-                  },
-                  {
-                      "macro": "{$CTRLPART.SSH.PORT}",
-                      "value": "22",
-                      "description": "Puerto para conexi\u00f3n SSH al Host DB"
-                  },
-                  {
-                      "macro": "{$CTRLPART.SSH.USER}",
-                      "description": "User donde se encuentra la DB para conexi\u00f3n por SSH"
-                  },
-                  {
-                      "macro": "{$CTRLPART.TRENDS.HOURSINT}",
-                      "value": "24",
-                      "description": "Horas de intervalo de las tablas de trends.  Acepta contexto con el nombre de la tabla"
-                  },
-                  {
-                      "macro": "{$CTRLPART.TRENDS.KEEPINT}",
-                      "value": "365",
-                      "description": "Intervalos a conservar en las tablas de trends. Acepta contexto con el nombre de la tabla"
-                  },
-                  {
-                      "macro": "{$CTRLPART.TRENDS.NEXTINT}",
-                      "value": "10",
-                      "description": "Cantidad de particiones a futuro para las tablas de trends.  Acepta contexto con el nombre de la tabla"
-                  }
-              ],
-              "dashboards": [
-                  {
-                      "uuid": "e89be7e7f03348c98f808657a96c4c3a",
-                      "name": "Dashboard Particionado",
-                      "display_period": "60",
-                      "pages": [
-                          {
-                              "widgets": [
-                                  {
-                                      "type": "honeycomb",
-                                      "name": "Dias Disponibles",
-                                      "width": "72",
-                                      "height": "5",
-                                      "fields": [
-                                          {
-                                              "type": "STRING",
-                                              "name": "items.0",
-                                              "value": "Dias disponibles en history"
-                                          },
-                                          {
-                                              "type": "STRING",
-                                              "name": "items.1",
-                                              "value": "Dias disponibles en history_log"
-                                          },
-                                          {
-                                              "type": "STRING",
-                                              "name": "items.2",
-                                              "value": "Dias disponibles en history_str"
-                                          },
-                                          {
-                                              "type": "STRING",
-                                              "name": "items.3",
-                                              "value": "Dias disponibles en history_text"
-                                          },
-                                          {
-                                              "type": "STRING",
-                                              "name": "items.4",
-                                              "value": "Dias disponibles en history_uint"
-                                          },
-                                          {
-                                              "type": "STRING",
-                                              "name": "items.5",
-                                              "value": "Dias disponibles en trends"
-                                          },
-                                          {
-                                              "type": "STRING",
-                                              "name": "items.6",
-                                              "value": "Dias disponibles en trends_uint"
-                                          },
-                                          {
-                                              "type": "STRING",
-                                              "name": "primary_label",
-                                              "value": "{{ITEM.NAME}.regsub(\"(.*)en (.*)\", \\2)}"
-                                          },
-                                          {
-                                              "type": "STRING",
-                                              "name": "primary_label_color",
-                                              "value": "000000"
-                                          },
-                                          {
-                                              "type": "INTEGER",
-                                              "name": "primary_label_size_type",
-                                              "value": "1"
-                                          },
-                                          {
-                                              "type": "STRING",
-                                              "name": "reference",
-                                              "value": "UIIZE"
-                                          },
-                                          {
-                                              "type": "INTEGER",
-                                              "name": "rf_rate",
-                                              "value": "600"
-                                          },
-                                          {
-                                              "type": "INTEGER",
-                                              "name": "secondary_label_decimal_places",
-                                              "value": "0"
-                                          },
-                                          {
-                                              "type": "STRING",
-                                              "name": "secondary_label_units",
-                                              "value": "dias"
-                                          },
-                                          {
-                                              "type": "STRING",
-                                              "name": "thresholds.0.color",
-                                              "value": "FF465C"
-                                          },
-                                          {
-                                              "type": "STRING",
-                                              "name": "thresholds.0.threshold",
-                                              "value": "9"
-                                          },
-                                          {
-                                              "type": "STRING",
-                                              "name": "thresholds.1.color",
-                                              "value": "0EC9AC"
-                                          },
-                                          {
-                                              "type": "STRING",
-                                              "name": "thresholds.1.threshold",
-                                              "value": "10"
-                                          }
-                                      ]
-                                  },
-                                  {
-                                      "type": "svggraph",
-                                      "name": "Tama\u00f1o de la DB",
-                                      "y": "5",
-                                      "width": "72",
-                                      "height": "5",
-                                      "fields": [
-                                          {
-                                              "type": "STRING",
-                                              "name": "ds.0.color",
-                                              "value": "689F38"
-                                          },
-                                          {
-                                              "type": "STRING",
-                                              "name": "ds.0.data_set_label",
-                                              "value": "Total Size of DB"
-                                          },
-                                          {
-                                              "type": "INTEGER",
-                                              "name": "ds.0.fill",
-                                              "value": "6"
-                                          },
-                                          {
-                                              "type": "STRING",
-                                              "name": "ds.0.items.0",
-                                              "value": "Total Size of DB"
-                                          },
-                                          {
-                                              "type": "INTEGER",
-                                              "name": "ds.0.transparency",
-                                              "value": "0"
-                                          },
-                                          {
-                                              "type": "INTEGER",
-                                              "name": "ds.0.width",
-                                              "value": "3"
-                                          },
-                                          {
-                                              "type": "INTEGER",
-                                              "name": "legend_statistic",
-                                              "value": "1"
-                                          },
-                                          {
-                                              "type": "STRING",
-                                              "name": "reference",
-                                              "value": "DJWTX"
-                                          },
-                                          {
-                                              "type": "INTEGER",
-                                              "name": "rf_rate",
-                                              "value": "900"
-                                          },
-                                          {
-                                              "type": "INTEGER",
-                                              "name": "righty",
-                                              "value": "0"
-                                          },
-                                          {
-                                              "type": "STRING",
-                                              "name": "time_period.from",
-                                              "value": "now-1M"
-                                          },
-                                          {
-                                              "type": "STRING",
-                                              "name": "time_period.to",
-                                              "value": "now"
-                                          }
-                                      ]
-                                  }
-                              ]
-                          }
-                      ]
-                  }
-              ]
-          }
-      ]
-  }
+    "zabbix_export": {
+        "version": "7.0",
+        "template_groups": [
+            {
+                "uuid": "64413dab4154436f9473b042acaffd54",
+                "name": "Custos"
+            }
+        ],
+        "templates": [
+            {
+                "uuid": "33558c1f77c94b2e8e3fc6eb64231542",
+                "template": "Control Particionado MySQL - ODBC Custos",
+                "name": "Control Particionado MySQL - ODBC Custos",
+                "description": "Controles de d\u00edas que quedan en las particiones de las tablas mediante consultas ODBC a la base.\nEjecuci\u00f3n del mantenimiento de particionado",
+                "vendor": {
+                    "name": "Custos Monitoring",
+                    "version": "1.1.0"
+                },
+                "groups": [
+                    {
+                        "name": "Custos"
+                    }
+                ],
+                "items": [
+                    {
+                        "uuid": "35ce8ea2bed649d98505e67a33b141ee",
+                        "name": "Dias disponibles en auditlog",
+                        "type": "ODBC",
+                        "key": "db.odbc.get[Dias que quedan para auditlog,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
+                        "delay": "1d",
+                        "history": "90d",
+                        "value_type": "TEXT",
+                        "trends": "0",
+                        "params": "CALL partition_daysleft(\"{$CTRLPART.DB.NAME}\",\"auditlog\")",
+                        "username": "{$CTRLPART.DB.USER}",
+                        "password": "{$CTRLPART.DB.PASSWORD}",
+                        "description": "Cantidad de d\u00edas enteros disponibles para insertar en la tabla",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.[0].DaysLeft"
+                                ]
+                            },
+                            {
+                                "type": "REGEX",
+                                "parameters": [
+                                    "\\d+",
+                                    "\\0"
+                                ],
+                                "error_handler": "CUSTOM_ERROR",
+                                "error_handler_params": "La tabla no est\u00e1 particionada"
+                            }
+                        ],
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "Control"
+                            },
+                            {
+                                "tag": "Application",
+                                "value": "Particionado"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "ceb4c23f785b49029dbcde51b1fcf97f",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para auditlog,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:auditlog}",
+                                "name": "Cantidad de d\u00edas en auditlog menores a {$CTRLPART.DIASLEFT.HIGH:auditlog}",
+                                "priority": "HIGH",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES"
+                            },
+                            {
+                                "uuid": "7597da98536a4ba8ada83d3b4db108c4",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para auditlog,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.INFO:auditlog}",
+                                "name": "Cantidad de d\u00edas en auditlog menores a {$CTRLPART.DIASLEFT.INFO:auditlog}",
+                                "priority": "INFO",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES",
+                                "dependencies": [
+                                    {
+                                        "name": "Cantidad de d\u00edas en history menores a {$CTRLPART.DIASLEFT.HIGH:history}",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history}"
+                                    }
+                                ]
+                            },
+                            {
+                                "uuid": "a2f5b053b9e14accb17a67ef0cfdef93",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para auditlog,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.WARNING:auditlog}",
+                                "name": "Cantidad de d\u00edas en auditlog menores a {$CTRLPART.DIASLEFT.WARNING:auditlog}",
+                                "priority": "WARNING",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES",
+                                "dependencies": [
+                                    {
+                                        "name": "Cantidad de d\u00edas en history menores a {$CTRLPART.DIASLEFT.HIGH:history}",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "a90235e9a0ae47daa929e54761f18136",
+                        "name": "Dias disponibles en history",
+                        "type": "ODBC",
+                        "key": "db.odbc.get[Dias que quedan para history,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
+                        "delay": "1d",
+                        "history": "90d",
+                        "params": "CALL partition_daysleft(\"{$CTRLPART.DB.NAME}\",\"history\")",
+                        "username": "{$CTRLPART.DB.USER}",
+                        "password": "{$CTRLPART.DB.PASSWORD}",
+                        "description": "Cantidad de d\u00edas enteros disponibles para insertar en la tabla",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.[0].DaysLeft"
+                                ]
+                            },
+                            {
+                                "type": "REGEX",
+                                "parameters": [
+                                    "\\d+",
+                                    "\\0"
+                                ],
+                                "error_handler": "CUSTOM_ERROR",
+                                "error_handler_params": "La tabla no est\u00e1 particionada"
+                            }
+                        ],
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "Control"
+                            },
+                            {
+                                "tag": "Application",
+                                "value": "Particionado"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "6ed1c21ae355454aa3ca2d952d25ebfc",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history}",
+                                "name": "Cantidad de d\u00edas en history menores a {$CTRLPART.DIASLEFT.HIGH:history}",
+                                "priority": "HIGH",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES"
+                            },
+                            {
+                                "uuid": "6132f501cb1b4ba883cfd2753d7f67e7",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.INFO:history}",
+                                "name": "Cantidad de d\u00edas en history menores a {$CTRLPART.DIASLEFT.INFO:history}",
+                                "priority": "INFO",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES",
+                                "dependencies": [
+                                    {
+                                        "name": "Cantidad de d\u00edas en history menores a {$CTRLPART.DIASLEFT.HIGH:history}",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history}"
+                                    }
+                                ]
+                            },
+                            {
+                                "uuid": "5de61fff04cf44d0ab74d660c6ca6413",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.WARNING:history}",
+                                "name": "Cantidad de d\u00edas en history menores a {$CTRLPART.DIASLEFT.WARNING:history}",
+                                "priority": "WARNING",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES",
+                                "dependencies": [
+                                    {
+                                        "name": "Cantidad de d\u00edas en history menores a {$CTRLPART.DIASLEFT.HIGH:history}",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "42d7d42a85cb463fbca848d718a13624",
+                        "name": "Dias Disponibles en history_bin",
+                        "type": "ODBC",
+                        "key": "db.odbc.get[Dias que quedan para history_bin,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
+                        "value_type": "TEXT",
+                        "trends": "0",
+                        "params": "CALL partition_daysleft(\"{$CTRLPART.DB.NAME}\",\"history_bin\")",
+                        "username": "{$CTRLPART.DB.USER}",
+                        "password": "{$CTRLPART.DB.PASSWORD}",
+                        "description": "Cantidad de d\u00edas enteros disponibles para insertar en la tabla",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.[0].DaysLeft"
+                                ]
+                            },
+                            {
+                                "type": "REGEX",
+                                "parameters": [
+                                    "\\d+",
+                                    "\\0"
+                                ],
+                                "error_handler": "CUSTOM_ERROR",
+                                "error_handler_params": "La tabla no esta particionada"
+                            }
+                        ],
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "Control"
+                            },
+                            {
+                                "tag": "Application",
+                                "value": "Particionado"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "eb295a15d90d4b5ea904a50dc309d26b",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_bin,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_bin}",
+                                "name": "Cantidad de d\u00edas en history_bin menores a {$CTRLPART.DIASLEFT.HIGH:history_bin}",
+                                "priority": "HIGH"
+                            },
+                            {
+                                "uuid": "91ed0398f0f8484b9dd67b9e6f705035",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_bin,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.INFO:history_bin}",
+                                "name": "Cantidad de d\u00edas en history_bin menores a {$CTRLPART.DIASLEFT.INFO:history_bin}",
+                                "priority": "INFO",
+                                "dependencies": [
+                                    {
+                                        "name": "Cantidad de d\u00edas en history_bin menores a {$CTRLPART.DIASLEFT.HIGH:history_bin}",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_bin,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_bin}"
+                                    }
+                                ]
+                            },
+                            {
+                                "uuid": "51de6091dcbf46a3af1cb2080452f89c",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_bin,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.WARNING:history_bin}",
+                                "name": "Cantidad de d\u00edas en history_bin menores a {$CTRLPART.DIASLEFT.WARNING:history_bin}",
+                                "priority": "WARNING",
+                                "dependencies": [
+                                    {
+                                        "name": "Cantidad de d\u00edas en history_bin menores a {$CTRLPART.DIASLEFT.HIGH:history_bin}",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_bin,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_bin}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "5c7c2a382579442bada9f0136dd17bf3",
+                        "name": "Dias disponibles en history_log",
+                        "type": "ODBC",
+                        "key": "db.odbc.get[Dias que quedan para history_log,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
+                        "delay": "1d",
+                        "history": "90d",
+                        "params": "CALL partition_daysleft(\"{$CTRLPART.DB.NAME}\",\"history_log\")",
+                        "username": "{$CTRLPART.DB.USER}",
+                        "password": "{$CTRLPART.DB.PASSWORD}",
+                        "description": "Cantidad de d\u00edas enteros disponibles para insertar en la tabla",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.[0].DaysLeft"
+                                ]
+                            },
+                            {
+                                "type": "REGEX",
+                                "parameters": [
+                                    "\\d+",
+                                    "\\0"
+                                ],
+                                "error_handler": "CUSTOM_ERROR",
+                                "error_handler_params": "La tabla no est\u00e1 particionada"
+                            }
+                        ],
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "Control"
+                            },
+                            {
+                                "tag": "Application",
+                                "value": "Particionado"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "2227783a94884c07b2dbe979f59af594",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_log,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_log}",
+                                "name": "Cantidad de d\u00edas en history_log menores a {$CTRLPART.DIASLEFT.HIGH:history_log}",
+                                "priority": "HIGH",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES"
+                            },
+                            {
+                                "uuid": "52e554128c9f4e84b199c9570aa03d98",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_log,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.INFO:history_log}",
+                                "name": "Cantidad de d\u00edas en history_log menores a {$CTRLPART.DIASLEFT.INFO:history_log}",
+                                "priority": "INFO",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES",
+                                "dependencies": [
+                                    {
+                                        "name": "Cantidad de d\u00edas en history_log menores a {$CTRLPART.DIASLEFT.HIGH:history_log}",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_log,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_log}"
+                                    }
+                                ]
+                            },
+                            {
+                                "uuid": "3da4b0c403ac480a83abcd127e5ca95d",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_log,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.WARNING:history_log}",
+                                "name": "Cantidad de d\u00edas en history_log menores a {$CTRLPART.DIASLEFT.WARNING:history_log}",
+                                "priority": "WARNING",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES",
+                                "dependencies": [
+                                    {
+                                        "name": "Cantidad de d\u00edas en history_log menores a {$CTRLPART.DIASLEFT.HIGH:history_log}",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_log,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_log}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "3944b7e62f724cfeb797fdad58e5c0a7",
+                        "name": "Dias disponibles en history_str",
+                        "type": "ODBC",
+                        "key": "db.odbc.get[Dias que quedan para history_str,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
+                        "delay": "1d",
+                        "history": "90d",
+                        "params": "CALL partition_daysleft(\"{$CTRLPART.DB.NAME}\",\"history_str\")",
+                        "username": "{$CTRLPART.DB.USER}",
+                        "password": "{$CTRLPART.DB.PASSWORD}",
+                        "description": "Cantidad de d\u00edas enteros disponibles para insertar en la tabla",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.[0].DaysLeft"
+                                ]
+                            },
+                            {
+                                "type": "REGEX",
+                                "parameters": [
+                                    "\\d+",
+                                    "\\0"
+                                ],
+                                "error_handler": "CUSTOM_ERROR",
+                                "error_handler_params": "La tabla no est\u00e1 particionada"
+                            }
+                        ],
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "Control"
+                            },
+                            {
+                                "tag": "Application",
+                                "value": "Particionado"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "0c9b330acf2740049734147d01a7199e",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_str,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_str}",
+                                "name": "Cantidad de d\u00edas en history_str menores a {$CTRLPART.DIASLEFT.HIGH:history_str}",
+                                "priority": "HIGH",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES"
+                            },
+                            {
+                                "uuid": "3372a46986194124bd686cbc033ca8f2",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_str,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.INFO:history_str}",
+                                "name": "Cantidad de d\u00edas en history_str menores a {$CTRLPART.DIASLEFT.INFO:history_str}",
+                                "priority": "INFO",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES",
+                                "dependencies": [
+                                    {
+                                        "name": "Cantidad de d\u00edas en history_str menores a {$CTRLPART.DIASLEFT.HIGH:history_str}",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_str,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_str}"
+                                    }
+                                ]
+                            },
+                            {
+                                "uuid": "167a9c77ded64b1687df944cc3305c15",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_str,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.WARNING:history_str}",
+                                "name": "Cantidad de d\u00edas en history_str menores a {$CTRLPART.DIASLEFT.WARNING:history_str}",
+                                "priority": "WARNING",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES",
+                                "dependencies": [
+                                    {
+                                        "name": "Cantidad de d\u00edas en history_str menores a {$CTRLPART.DIASLEFT.HIGH:history_str}",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_str,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_str}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "10b3391ed4074c3f804eb3241b0a24ea",
+                        "name": "Dias disponibles en history_text",
+                        "type": "ODBC",
+                        "key": "db.odbc.get[Dias que quedan para history_text,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
+                        "delay": "1d",
+                        "history": "90d",
+                        "params": "CALL partition_daysleft(\"{$CTRLPART.DB.NAME}\",\"history_text\")",
+                        "username": "{$CTRLPART.DB.USER}",
+                        "password": "{$CTRLPART.DB.PASSWORD}",
+                        "description": "Cantidad de d\u00edas enteros disponibles para insertar en la tabla",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.[0].DaysLeft"
+                                ]
+                            },
+                            {
+                                "type": "REGEX",
+                                "parameters": [
+                                    "\\d+",
+                                    "\\0"
+                                ],
+                                "error_handler": "CUSTOM_ERROR",
+                                "error_handler_params": "La tabla no est\u00e1 particionada"
+                            }
+                        ],
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "Control"
+                            },
+                            {
+                                "tag": "Application",
+                                "value": "Particionado"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "ea69db0f8c414ddb86b41235b1e182db",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_text,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_text}",
+                                "name": "Cantidad de d\u00edas en history_text menores a {$CTRLPART.DIASLEFT.HIGH:history_text}",
+                                "priority": "HIGH",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES"
+                            },
+                            {
+                                "uuid": "efaa0376132445b6a2df33fdd2e592e2",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_text,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.INFO:history_text}",
+                                "name": "Cantidad de d\u00edas en history_text menores a {$CTRLPART.DIASLEFT.INFO:history_text}",
+                                "priority": "INFO",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES",
+                                "dependencies": [
+                                    {
+                                        "name": "Cantidad de d\u00edas en history_text menores a {$CTRLPART.DIASLEFT.HIGH:history_text}",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_text,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_text}"
+                                    }
+                                ]
+                            },
+                            {
+                                "uuid": "42403c4fa826499ea2738078657b6cf3",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_text,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.WARNING:history_text}",
+                                "name": "Cantidad de d\u00edas en history_text menores a {$CTRLPART.DIASLEFT.WARNING:history_text}",
+                                "priority": "WARNING",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES",
+                                "dependencies": [
+                                    {
+                                        "name": "Cantidad de d\u00edas en history_text menores a {$CTRLPART.DIASLEFT.HIGH:history_text}",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_text,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_text}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "58982381152a4a539b5a8ada49ff2677",
+                        "name": "Dias disponibles en history_uint",
+                        "type": "ODBC",
+                        "key": "db.odbc.get[Dias que quedan para history_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
+                        "delay": "1d",
+                        "history": "90d",
+                        "params": "CALL partition_daysleft(\"{$CTRLPART.DB.NAME}\",\"history_uint\")",
+                        "username": "{$CTRLPART.DB.USER}",
+                        "password": "{$CTRLPART.DB.PASSWORD}",
+                        "description": "Cantidad de d\u00edas enteros disponibles para insertar en la tabla",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.[0].DaysLeft"
+                                ]
+                            },
+                            {
+                                "type": "REGEX",
+                                "parameters": [
+                                    "\\d+",
+                                    "\\0"
+                                ],
+                                "error_handler": "CUSTOM_ERROR",
+                                "error_handler_params": "La tabla no est\u00e1 particionada"
+                            }
+                        ],
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "Control"
+                            },
+                            {
+                                "tag": "Application",
+                                "value": "Particionado"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "284e656ffb1e4979808f48de7b4dc6b7",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_uint}",
+                                "name": "Cantidad de d\u00edas en history_uint menores a {$CTRLPART.DIASLEFT.HIGH:history_uint}",
+                                "priority": "HIGH",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES"
+                            },
+                            {
+                                "uuid": "229ea2dceb63424eb2150d2ac48ad408",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.INFO:history_uint}",
+                                "name": "Cantidad de d\u00edas en history_uint menores a {$CTRLPART.DIASLEFT.INFO:history_uint}",
+                                "priority": "INFO",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES",
+                                "dependencies": [
+                                    {
+                                        "name": "Cantidad de d\u00edas en history_uint menores a {$CTRLPART.DIASLEFT.HIGH:history_uint}",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_uint}"
+                                    }
+                                ]
+                            },
+                            {
+                                "uuid": "5f0763a7fd9e43bd8af0cb06884737eb",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.WARNING:history_uint}",
+                                "name": "Cantidad de d\u00edas en history_uint menores a {$CTRLPART.DIASLEFT.WARNING:history_uint}",
+                                "priority": "WARNING",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES",
+                                "dependencies": [
+                                    {
+                                        "name": "Cantidad de d\u00edas en history_uint menores a {$CTRLPART.DIASLEFT.HIGH:history_uint}",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para history_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:history_uint}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "3b8735d25a834068b89789d9480b575d",
+                        "name": "Dias disponibles en trends",
+                        "type": "ODBC",
+                        "key": "db.odbc.get[Dias que quedan para trends,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
+                        "delay": "1d",
+                        "history": "90d",
+                        "params": "CALL partition_daysleft(\"{$CTRLPART.DB.NAME}\",\"trends\")",
+                        "username": "{$CTRLPART.DB.USER}",
+                        "password": "{$CTRLPART.DB.PASSWORD}",
+                        "description": "Cantidad de d\u00edas enteros disponibles para insertar en la tabla",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.[0].DaysLeft"
+                                ]
+                            },
+                            {
+                                "type": "REGEX",
+                                "parameters": [
+                                    "\\d+",
+                                    "\\0"
+                                ],
+                                "error_handler": "CUSTOM_ERROR",
+                                "error_handler_params": "La tabla no est\u00e1 particionada"
+                            }
+                        ],
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "Control"
+                            },
+                            {
+                                "tag": "Application",
+                                "value": "Particionado"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "98bb8157330740ea95b860928fc4afe4",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:trends}",
+                                "name": "Cantidad de d\u00edas en trends menores a {$CTRLPART.DIASLEFT.HIGH:trends}",
+                                "priority": "HIGH",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES"
+                            },
+                            {
+                                "uuid": "74ba2d4a9ff4411d913e36a3d32bf7fa",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.INFO:trends}",
+                                "name": "Cantidad de d\u00edas en trends menores a {$CTRLPART.DIASLEFT.INFO:trends}",
+                                "priority": "INFO",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES",
+                                "dependencies": [
+                                    {
+                                        "name": "Cantidad de d\u00edas en trends menores a {$CTRLPART.DIASLEFT.HIGH:trends}",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:trends}"
+                                    }
+                                ]
+                            },
+                            {
+                                "uuid": "7fabc3abcc5741a1912a16e29a9fdc3e",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.WARNING:trends}",
+                                "name": "Cantidad de d\u00edas en trends menores a {$CTRLPART.DIASLEFT.WARNING:trends}",
+                                "priority": "WARNING",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES",
+                                "dependencies": [
+                                    {
+                                        "name": "Cantidad de d\u00edas en trends menores a {$CTRLPART.DIASLEFT.HIGH:trends}",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:trends}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "7cb8fd0cb1634b80bb325595da68d988",
+                        "name": "Dias disponibles en trends_uint",
+                        "type": "ODBC",
+                        "key": "db.odbc.get[Dias que quedan para trends_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
+                        "delay": "1d",
+                        "history": "90d",
+                        "params": "CALL partition_daysleft(\"{$CTRLPART.DB.NAME}\",\"trends_uint\")",
+                        "username": "{$CTRLPART.DB.USER}",
+                        "password": "{$CTRLPART.DB.PASSWORD}",
+                        "description": "Cantidad de d\u00edas enteros disponibles para insertar en la tabla",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.[0].DaysLeft"
+                                ]
+                            },
+                            {
+                                "type": "REGEX",
+                                "parameters": [
+                                    "\\d+",
+                                    "\\0"
+                                ],
+                                "error_handler": "CUSTOM_ERROR",
+                                "error_handler_params": "La tabla no est\u00e1 particionada"
+                            }
+                        ],
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "Control"
+                            },
+                            {
+                                "tag": "Application",
+                                "value": "Particionado"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "00852c94a0b7472d941aaf3c3b0d7259",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:trends_uint}",
+                                "name": "Cantidad de d\u00edas en trends_uint menores a {$CTRLPART.DIASLEFT.HIGH:trends_uint}",
+                                "priority": "HIGH",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES"
+                            },
+                            {
+                                "uuid": "ea0f3a44eed3479a86345044f016f257",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.INFO:trends_uint}",
+                                "name": "Cantidad de d\u00edas en trends_uint menores a {$CTRLPART.DIASLEFT.INFO:trends_uint}",
+                                "priority": "INFO",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES",
+                                "dependencies": [
+                                    {
+                                        "name": "Cantidad de d\u00edas en trends_uint menores a {$CTRLPART.DIASLEFT.HIGH:trends_uint}",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:trends_uint}"
+                                    }
+                                ]
+                            },
+                            {
+                                "uuid": "6254d63df08647f79387dda801b3ec2d",
+                                "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.WARNING:trends_uint}",
+                                "name": "Cantidad de d\u00edas en trends_uint menores a {$CTRLPART.DIASLEFT.WARNING:trends_uint}",
+                                "priority": "WARNING",
+                                "description": "Quedan pocos d\u00edas disponibles para insertar en la tabla",
+                                "manual_close": "YES",
+                                "dependencies": [
+                                    {
+                                        "name": "Cantidad de d\u00edas en trends_uint menores a {$CTRLPART.DIASLEFT.HIGH:trends_uint}",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/db.odbc.get[Dias que quedan para trends_uint,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}])<{$CTRLPART.DIASLEFT.HIGH:trends_uint}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "5a8678d0fe4c4e96bd6cf74256455d1c",
+                        "name": "Ejecuci\u00f3n Mantenimiento Particionado ODBC",
+                        "type": "ODBC",
+                        "key": "db.odbc.get[Ejecucion Particionado ODBC,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
+                        "delay": "1d",
+                        "history": "1w",
+                        "value_type": "TEXT",
+                        "trends": "0",
+                        "params": "CALL partition_maintenance_all(\"{$CTRLPART.DB.NAME}\");",
+                        "username": "{$CTRLPART.DB.USER}",
+                        "password": "{$CTRLPART.DB.PASSWORD}",
+                        "description": "Ejecuta el stored procedure que mantiene las particiones en la DB de Zabbix",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "Ejecucion"
+                            },
+                            {
+                                "tag": "Application",
+                                "value": "Particionado"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "143337baf37d46c6b8ac2ab9d0139706",
+                        "name": "All Partition Sizes in MB",
+                        "type": "ODBC",
+                        "key": "db.odbc.get[particionSizesMB,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
+                        "delay": "4h",
+                        "value_type": "TEXT",
+                        "trends": "0",
+                        "params": "SELECT \n    p.partition_ordinal_position AS partition_number,\n    p.table_name,\n    p.partition_method,\n    SUM(p.data_length + p.index_length) AS partition_size,\n    CONCAT(SUBSTRING(p.partition_name, 8, 2), \"/\",\n    SUBSTRING(p.partition_name, 6, 2), \"/\", \n    SUBSTRING(p.partition_name, 2, 4) ) AS fecha\nFROM \n    information_schema.PARTITIONS p\nJOIN \n    information_schema.tables t\n    ON p.table_schema = t.table_schema\n    AND p.table_name = t.table_name\nWHERE \n    p.table_schema = '{$CTRLPART.DB.NAME}' \n    AND p.partition_ordinal_position is not null\nGROUP BY \n    p.partition_ordinal_position, p.table_name, p.partition_method, p.partition_name\nORDER BY \n    p.partition_ordinal_position;",
+                        "username": "{$CTRLPART.DB.USER}",
+                        "password": "{$CTRLPART.DB.PASSWORD}",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "Control"
+                            },
+                            {
+                                "tag": "Application",
+                                "value": "Particionado"
+                            },
+                            {
+                                "tag": "raw"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "1197c416d32b46209652ad7ba4b0ee71",
+                        "name": "Total Size of DB",
+                        "type": "ODBC",
+                        "key": "db.odbc.select[sizeInMB,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]",
+                        "delay": "4h",
+                        "value_type": "FLOAT",
+                        "units": "B",
+                        "params": "SELECT \n    SUM(data_length + index_length) AS database_size\nFROM \n    information_schema.tables\nWHERE \n    table_schema = '{$CTRLPART.DB.NAME}';",
+                        "username": "{$CTRLPART.DB.USER}",
+                        "password": "{$CTRLPART.DB.PASSWORD}",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "Control"
+                            },
+                            {
+                                "tag": "Application",
+                                "value": "Particionado"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "3ffcd26a73d84ff5a87e8e81bfe9c89e",
+                        "name": "Creaci\u00f3n de Stored procedures",
+                        "type": "SSH",
+                        "key": "ssh.run[mysql create stored procedures,{$CTRLPART.SSH.HOST},{$CTRLPART.SSH.PORT}]",
+                        "delay": "0;md31wd1h0m0s0",
+                        "history": "90d",
+                        "value_type": "TEXT",
+                        "trends": "0",
+                        "status": "DISABLED",
+                        "params": "echo 'DELIMITER |\ndrop PROCEDURE if exists partition_daysleft |\nCREATE PROCEDURE `partition_daysleft`(SCHEMANAME varchar(64), TABLENAME varchar(64))\nBEGIN\n   DECLARE UltDia int;\n   SELECT PARTITION_DESCRIPTION INTO UltDia\n     FROM information_schema.partitions\n     WHERE table_schema = SCHEMANAME\n       and table_name = TABLENAME\n     order by PARTITION_DESCRIPTION desc limit 1;\n   SELECT datediff( From_Unixtime(UltDia) , Now() ) AS \"DaysLeft\";\nEND |\ndrop PROCEDURE if exists partition_create |\nCREATE PROCEDURE `partition_create`(SCHEMANAME varchar(64), TABLENAME varchar(64), PARTITIONNAME varchar(64), CLOCK int)\nBEGIN\n   DECLARE RETROWS INT;\n   SELECT COUNT(1) INTO RETROWS\n      FROM information_schema.partitions\n      WHERE table_schema = SCHEMANAME\n        AND table_name = TABLENAME\n        AND partition_description >= CLOCK;\n\n   IF RETROWS = 0 THEN\n      insert into logint values ( SCHEMANAME, TABLENAME, \"CREATE PARTITION\", PARTITIONNAME);\n      SET @sql = CONCAT( \"ALTER TABLE \", SCHEMANAME, \".\", TABLENAME, \" ADD PARTITION (PARTITION \",\n                          PARTITIONNAME, \" VALUES LESS THAN (\", CLOCK, \"));\" );\n      PREPARE STMT FROM @sql;\n      EXECUTE STMT;\n      DEALLOCATE PREPARE STMT;\n   ELSE\n      insert into logint values ( SCHEMANAME, TABLENAME, \"CREATE PARTITION\", \"N/A\");\n   END IF;\nEND |\ndrop PROCEDURE if exists partition_drop |\nCREATE PROCEDURE `partition_drop`(SCHEMANAME VARCHAR(64), TABLENAME VARCHAR(64), DELETE_BELOW_PARTITION_DATE BIGINT)\nBEGIN\n   DECLARE done INT DEFAULT FALSE;\n   DECLARE drop_part_name VARCHAR(16);\n   \n   DECLARE myCursor CURSOR FOR\n   SELECT partition_name\n      FROM information_schema.partitions\n      WHERE table_schema = SCHEMANAME\n        AND table_name = TABLENAME\n        AND CAST(SUBSTRING(partition_name FROM 2) AS UNSIGNED) < DELETE_BELOW_PARTITION_DATE;\n   DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;\n\n   SET @alter_header = CONCAT(\"ALTER TABLE \", SCHEMANAME, \".\", TABLENAME, \" DROP PARTITION \");\n   SET @drop_partitions = \"\";\n   \n   OPEN myCursor;\n   read_loop: LOOP\n      FETCH myCursor INTO drop_part_name;\n      IF done THEN\n         LEAVE read_loop;\n      END IF;\n      SET @drop_partitions = IF(@drop_partitions = \"\", drop_part_name, CONCAT(@drop_partitions, \",\", drop_part_name));\n   END LOOP;\n   IF @drop_partitions != \"\" THEN\n      SET @full_sql = CONCAT(@alter_header, @drop_partitions, \";\");\n      PREPARE STMT FROM @full_sql;\n      EXECUTE STMT;\n      DEALLOCATE PREPARE STMT;\n\n      insert into logint values ( SCHEMANAME, TABLENAME, \" DROP PARTITION \", @drop_partitions);\n   ELSE\n      insert into logint values ( SCHEMANAME, TABLENAME, \" DROP PARTITION \", \"N/A\");\n   END IF;\nEND |\ndrop PROCEDURE if exists partition_maintenance |\nCREATE PROCEDURE `partition_maintenance`(SCHEMA_NAME VARCHAR(32), TABLE_NAME VARCHAR(32), KEEP_DATA_DAYS INT, HOURLY_INTERVAL INT, CREATE_NEXT_INTERVALS INT)\nBEGIN\n   DECLARE OLDER_THAN_PARTITION_DATE VARCHAR(16);\n   DECLARE PARTITION_NAME VARCHAR(16);\n   DECLARE OLD_PARTITION_NAME VARCHAR(16);\n   DECLARE LESS_THAN_TIMESTAMP INT;\n   DECLARE CUR_TIME INT;\n\n   CALL partition_verify(SCHEMA_NAME, TABLE_NAME, HOURLY_INTERVAL);\n   SET CUR_TIME = UNIX_TIMESTAMP(DATE_FORMAT(NOW(), \"%Y-%m-%d 00:00:00\"));\n\n   SET @__interval = 1;\n   create_loop: LOOP\n      IF @__interval > CREATE_NEXT_INTERVALS THEN\n         LEAVE create_loop;\n      END IF;\n\n      SET LESS_THAN_TIMESTAMP = CUR_TIME + (HOURLY_INTERVAL * @__interval * 3600);\n      SET PARTITION_NAME = FROM_UNIXTIME(CUR_TIME + HOURLY_INTERVAL * (@__interval - 1) * 3600, \"p%Y%m%d%H00\");\n      IF(PARTITION_NAME != OLD_PARTITION_NAME) THEN\n          CALL partition_create(SCHEMA_NAME, TABLE_NAME, PARTITION_NAME, LESS_THAN_TIMESTAMP);\n      END IF;\n      SET @__interval=@__interval+1;\n      SET OLD_PARTITION_NAME = PARTITION_NAME;\n   END LOOP;\n\n   SET OLDER_THAN_PARTITION_DATE=DATE_FORMAT(DATE_SUB(NOW(), INTERVAL KEEP_DATA_DAYS DAY), \"%Y%m%d0000\");\n   CALL partition_drop(SCHEMA_NAME, TABLE_NAME, OLDER_THAN_PARTITION_DATE);\nEND |\ndrop PROCEDURE if exists partition_maintenance_all |\nCREATE PROCEDURE `partition_maintenance_all`(SCHEMA_NAME VARCHAR(32))\nBEGIN\n   CREATE TEMPORARY TABLE logint(schemaname varchar(255), tablename varchar(255), action varchar(255), partitionname varchar(255));\n\n   CALL partition_maintenance(SCHEMA_NAME, \"history\",      {$CTRLPART.HISTORY.KEEPINT:history},      {$CTRLPART.HISTORY.HOURSINT:history},     {$CTRLPART.HISTORY.NEXTINT:history}   );\n   CALL partition_maintenance(SCHEMA_NAME, \"history_log\",  {$CTRLPART.HISTORY.KEEPINT:history_log},  {$CTRLPART.HISTORY.HOURSINT:history},     {$CTRLPART.HISTORY.NEXTINT:history}   );\n   CALL partition_maintenance(SCHEMA_NAME, \"history_str\",  {$CTRLPART.HISTORY.KEEPINT:history_str},  {$CTRLPART.HISTORY.HOURSINT:history},     {$CTRLPART.HISTORY.NEXTINT:history}   );\n   CALL partition_maintenance(SCHEMA_NAME, \"history_text\", {$CTRLPART.HISTORY.KEEPINT:history_text}, {$CTRLPART.HISTORY.HOURSINT:history},     {$CTRLPART.HISTORY.NEXTINT:history}   );\n   CALL partition_maintenance(SCHEMA_NAME, \"history_uint\", {$CTRLPART.HISTORY.KEEPINT:history_uint}, {$CTRLPART.HISTORY.HOURSINT:history},     {$CTRLPART.HISTORY.NEXTINT:history}   );\n   CALL partition_maintenance(SCHEMA_NAME, \"history_bin\", {$CTRLPART.HISTORY.KEEPINT:history_uint}, {$CTRLPART.HISTORY.HOURSINT:history},     {$CTRLPART.HISTORY.NEXTINT:history}   );\n   CALL partition_maintenance(SCHEMA_NAME, \"trends\",       {$CTRLPART.TRENDS.KEEPINT:trends},        {$CTRLPART.TRENDS.HOURSINT:trends},       {$CTRLPART.TRENDS.NEXTINT:trends}     );\n   CALL partition_maintenance(SCHEMA_NAME, \"trends_uint\",  {$CTRLPART.TRENDS.KEEPINT:trends_uint},   {$CTRLPART.TRENDS.HOURSINT:trends_uint},  {$CTRLPART.TRENDS.NEXTINT:trends_uint});\n\n   SELECT distinct * from logint;\nEND |\ndrop PROCEDURE if exists partition_verify |\nCREATE PROCEDURE `partition_verify`(SCHEMANAME VARCHAR(64), TABLENAME VARCHAR(64), HOURLYINTERVAL INT(11))\nBEGIN\n   DECLARE PARTITION_NAME VARCHAR(16);\n   DECLARE RETROWS INT(11);\n   DECLARE FUTURE_TIMESTAMP TIMESTAMP;\n\n   SELECT COUNT(1) INTO RETROWS\n      FROM information_schema.partitions\n      WHERE table_schema = SCHEMANAME\n        AND table_name = TABLENAME\n        AND partition_name IS NULL;\n\n   IF RETROWS = 1 THEN\n      SET FUTURE_TIMESTAMP = TIMESTAMPADD(HOUR, HOURLYINTERVAL, CONCAT(CURDATE(), \" \", \"00:00:00\"));\n      SET PARTITION_NAME = DATE_FORMAT(CURDATE(), \"p%Y%m%d%H00\");\n\n      SET @__PARTITION_SQL = CONCAT(\"ALTER TABLE \", SCHEMANAME, \".\", TABLENAME, \" PARTITION BY RANGE(`clock`)\");\n      SET @__PARTITION_SQL = CONCAT(@__PARTITION_SQL, \"(PARTITION \", PARTITION_NAME,\n                                     \" VALUES LESS THAN (\", UNIX_TIMESTAMP(FUTURE_TIMESTAMP), \"));\");\n      \n      PREPARE STMT FROM @__PARTITION_SQL;\n      EXECUTE STMT;\n      DEALLOCATE PREPARE STMT;\n   END IF;\nEND |' | mysql -h {$CTRLPART.DB.HOST} -P {$CTRLPART.DB.PORT} -u {$CTRLPART.DB.USER} -p{$CTRLPART.DB.PASSWORD} {$CTRLPART.DB.NAME} -v",
+                        "username": "{$CTRLPART.SSH.USER}",
+                        "password": "{$CTRLPART.SSH.PASSWORD}",
+                        "description": "Crea los stored prodedures para el mantenimiento del particionado.",
+                        "preprocessing": [
+                            {
+                                "type": "JAVASCRIPT",
+                                "parameters": [
+                                    "if (value.length==0){\n return \"No hay datos\"\n}\n\nres = value.match(/CREATE PROCEDURE `(.*)`/g)\nerror=\"\"\n\nfunction contains(a, obj) {\n    var i = a.length;\n    while (i--) {\n       if (a[i] == obj) {\n           return true;\n       }\n    }\n    return false;\n}\n\nfunction ExPr(pr,resultado){\n if (!contains(resultado,\"CREATE PROCEDURE `\"+pr+\"`\")) {\n  if (error.length == 0) {\n    error=pr\n  } else {\n    error=error+\", \"+pr\n  }\n }\n}\n\nExPr(\"partition_daysleft\",res)\nExPr(\"partition_create\",res)\nExPr(\"partition_drop\",res)\nExPr(\"partition_maintenance\",res)\nExPr(\"partition_maintenance_all\",res)\nExPr(\"partition_verify\",res)\n\nif (error.length==0){\n error=\"OK\"\n} else {\n error=\"Faltaron crear: \"+error\n}\n\nreturn error"
+                                ]
+                            }
+                        ],
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "Control"
+                            },
+                            {
+                                "tag": "Application",
+                                "value": "Particionado"
+                            }
+                        ]
+                    }
+                ],
+                "discovery_rules": [
+                    {
+                        "uuid": "7b1805c58aa046a98355295b2b00e1f6",
+                        "name": "Partition LLD",
+                        "type": "DEPENDENT",
+                        "key": "allPartitions.discovery",
+                        "delay": "0",
+                        "item_prototypes": [
+                            {
+                                "uuid": "a1c72fa065b34285bd824566e3e8490c",
+                                "name": "Size of Partition {#DATE} in {#TABLE}",
+                                "type": "DEPENDENT",
+                                "key": "partition.[{#PARTITION_NUMBER}.{#TABLE}]",
+                                "delay": "0",
+                                "value_type": "FLOAT",
+                                "units": "B",
+                                "preprocessing": [
+                                    {
+                                        "type": "JSONPATH",
+                                        "parameters": [
+                                            "$[?(@.partition_number == '{#PARTITION_NUMBER}' && (@.TABLE_NAME == '{#TABLE}') )].partition_size.first()"
+                                        ]
+                                    },
+                                    {
+                                        "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                                        "parameters": [
+                                            "3600"
+                                        ]
+                                    }
+                                ],
+                                "master_item": {
+                                    "key": "db.odbc.get[particionSizesMB,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]"
+                                },
+                                "tags": [
+                                    {
+                                        "tag": "number",
+                                        "value": "{#PARTITION_NUMBER}"
+                                    },
+                                    {
+                                        "tag": "table",
+                                        "value": "{#TABLE}"
+                                    }
+                                ],
+                                "trigger_prototypes": [
+                                    {
+                                        "uuid": "197013b1f7ad47eea99797b15343801d",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/partition.[{#PARTITION_NUMBER}.{#TABLE}])>{$CTRLPART.DB.SIZE.CRIT:\"{#TABLE}\"}",
+                                        "name": "Threshold superado en particion {#PARTITION_NUMBER} de {#TABLE}",
+                                        "priority": "HIGH",
+                                        "tags": [
+                                            {
+                                                "tag": "test"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "uuid": "6c64688be40944b7acf6eb63792e8c81",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/partition.[{#PARTITION_NUMBER}.{#TABLE}])>{$CTRLPART.DB.SIZE.WARN:\"{#TABLE}\"}",
+                                        "name": "Threshold superado en particion {#PARTITION_NUMBER} de {#TABLE}",
+                                        "priority": "WARNING",
+                                        "tags": [
+                                            {
+                                                "tag": "test"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "uuid": "54a154dad64f480e866cf05e9eec1c45",
+                                "name": "Number of partitions for {#TABLE}",
+                                "type": "DEPENDENT",
+                                "key": "total.partitions.[{#TABLE}]",
+                                "delay": "0",
+                                "preprocessing": [
+                                    {
+                                        "type": "JSONPATH",
+                                        "parameters": [
+                                            "$[?(@.TABLE_NAME == '{#TABLENAME}')].partition_number.max()"
+                                        ]
+                                    }
+                                ],
+                                "master_item": {
+                                    "key": "db.odbc.get[particionSizesMB,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]"
+                                },
+                                "trigger_prototypes": [
+                                    {
+                                        "uuid": "d70296a8b2d740949d0a4fc7dd95e647",
+                                        "expression": "last(/Control Particionado MySQL - ODBC Custos/total.partitions.[{#TABLE}])>({$CTRLPART.HISTORY.KEEPINT}+{$CTRLPART.HISTORY.NEXTINT})",
+                                        "name": "Exceso de particiones detectadas para {#TABLE}",
+                                        "priority": "WARNING"
+                                    }
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "db.odbc.get[particionSizesMB,{$CTRLPART.DB.DSN},{$CTRLPART.DB.CONSTR}]"
+                        },
+                        "lld_macro_paths": [
+                            {
+                                "lld_macro": "{#DATE}",
+                                "path": "$.fecha"
+                            },
+                            {
+                                "lld_macro": "{#PARTITION_NUMBER}",
+                                "path": "$.partition_number"
+                            },
+                            {
+                                "lld_macro": "{#TABLE}",
+                                "path": "$.TABLE_NAME"
+                            }
+                        ]
+                    }
+                ],
+                "tags": [
+                    {
+                        "tag": "alcance",
+                        "value": "particionado"
+                    },
+                    {
+                        "tag": "aplicacion",
+                        "value": "basededatos"
+                    }
+                ],
+                "macros": [
+                    {
+                        "macro": "{$CTRLPART.DB.CONSTR}",
+                        "value": "Driver=/usr/lib64/libmaodbc.so;Server=127.0.0.1;Port=3306;Database=zabbix",
+                        "description": "Conection String a la DB"
+                    },
+                    {
+                        "macro": "{$CTRLPART.DB.DSN}",
+                        "description": "Nombre del DSN para conectarse"
+                    },
+                    {
+                        "macro": "{$CTRLPART.DB.HOST}",
+                        "value": "127.0.0.1",
+                        "description": "Host donde se encuentra la DB para la creaci\u00f3n de los stored procedures"
+                    },
+                    {
+                        "macro": "{$CTRLPART.DB.NAME}",
+                        "value": "zabbix",
+                        "description": "Nombre de la base de datos en donde se mantienen las particiones"
+                    },
+                    {
+                        "macro": "{$CTRLPART.DB.PASSWORD}",
+                        "description": "Password del usuario en la DB"
+                    },
+                    {
+                        "macro": "{$CTRLPART.DB.PORT}",
+                        "value": "3306",
+                        "description": "Puerto para la conexi\u00f3n a la DB"
+                    },
+                    {
+                        "macro": "{$CTRLPART.DB.SIZE.CRIT}",
+                        "value": "50000000",
+                        "description": "Tama\u00f1o de partici\u00f3n necesario para triggerear una alerta CRITICAL"
+                    },
+                    {
+                        "macro": "{$CTRLPART.DB.SIZE.WARN}",
+                        "value": "40000000",
+                        "description": "Tama\u00f1o de partici\u00f3n necesario para triggerear una alerta AVERAGE"
+                    },
+                    {
+                        "macro": "{$CTRLPART.DB.USER}",
+                        "description": "Usuario para conectarse a la DB"
+                    },
+                    {
+                        "macro": "{$CTRLPART.DIASLEFT.HIGH}",
+                        "value": "2",
+                        "description": "Dias limite para alarma HIGH"
+                    },
+                    {
+                        "macro": "{$CTRLPART.DIASLEFT.INFO}",
+                        "value": "9",
+                        "description": "Dias limite alarma de INFO"
+                    },
+                    {
+                        "macro": "{$CTRLPART.DIASLEFT.WARNING}",
+                        "value": "7",
+                        "description": "Dias limite alarma de WARNING"
+                    },
+                    {
+                        "macro": "{$CTRLPART.HISTORY.HOURSINT}",
+                        "value": "24",
+                        "description": "Horas de intervalo de las tablas de history.  Acepta contexto con el nombre de la tabla"
+                    },
+                    {
+                        "macro": "{$CTRLPART.HISTORY.KEEPINT}",
+                        "value": "30",
+                        "description": "Intervalos a conservar en las tablas de history. Acepta contexto con el nombre de la tabla"
+                    },
+                    {
+                        "macro": "{$CTRLPART.HISTORY.NEXTINT}",
+                        "value": "10",
+                        "description": "Cantidad  de particiones a futuro para las tablas de history.  Acepta contexto con el nombre de la tabla"
+                    },
+                    {
+                        "macro": "{$CTRLPART.SSH.HOST}",
+                        "value": "127.0.0.1",
+                        "description": "Host donde se encuentra la DB para conexi\u00f3n por SSH"
+                    },
+                    {
+                        "macro": "{$CTRLPART.SSH.PASSWORD}",
+                        "description": "Password donde se encuentra la DB para conexi\u00f3n por SSH"
+                    },
+                    {
+                        "macro": "{$CTRLPART.SSH.PORT}",
+                        "value": "22",
+                        "description": "Puerto para conexi\u00f3n SSH al Host DB"
+                    },
+                    {
+                        "macro": "{$CTRLPART.SSH.USER}",
+                        "description": "User donde se encuentra la DB para conexi\u00f3n por SSH"
+                    },
+                    {
+                        "macro": "{$CTRLPART.TRENDS.HOURSINT}",
+                        "value": "24",
+                        "description": "Horas de intervalo de las tablas de trends.  Acepta contexto con el nombre de la tabla"
+                    },
+                    {
+                        "macro": "{$CTRLPART.TRENDS.KEEPINT}",
+                        "value": "365",
+                        "description": "Intervalos a conservar en las tablas de trends. Acepta contexto con el nombre de la tabla"
+                    },
+                    {
+                        "macro": "{$CTRLPART.TRENDS.NEXTINT}",
+                        "value": "10",
+                        "description": "Cantidad de particiones a futuro para las tablas de trends.  Acepta contexto con el nombre de la tabla"
+                    }
+                ],
+                "dashboards": [
+                    {
+                        "uuid": "e89be7e7f03348c98f808657a96c4c3a",
+                        "name": "Dashboard Particionado",
+                        "display_period": "60",
+                        "pages": [
+                            {
+                                "widgets": [
+                                    {
+                                        "type": "honeycomb",
+                                        "name": "Dias Disponibles",
+                                        "width": "72",
+                                        "height": "5",
+                                        "fields": [
+                                            {
+                                                "type": "STRING",
+                                                "name": "items.0",
+                                                "value": "Dias disponibles en history"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "items.1",
+                                                "value": "Dias disponibles en history_log"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "items.2",
+                                                "value": "Dias disponibles en history_str"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "items.3",
+                                                "value": "Dias disponibles en history_text"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "items.4",
+                                                "value": "Dias disponibles en history_uint"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "items.5",
+                                                "value": "Dias disponibles en trends"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "items.6",
+                                                "value": "Dias disponibles en trends_uint"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "primary_label",
+                                                "value": "{{ITEM.NAME}.regsub(\"(.*)en (.*)\", \\2)}"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "primary_label_color",
+                                                "value": "000000"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "primary_label_size_type",
+                                                "value": "1"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "reference",
+                                                "value": "UIIZE"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "rf_rate",
+                                                "value": "600"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "secondary_label_decimal_places",
+                                                "value": "0"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "secondary_label_units",
+                                                "value": "dias"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "thresholds.0.color",
+                                                "value": "FF465C"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "thresholds.0.threshold",
+                                                "value": "9"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "thresholds.1.color",
+                                                "value": "0EC9AC"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "thresholds.1.threshold",
+                                                "value": "10"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "svggraph",
+                                        "name": "Tama\u00f1o de la DB",
+                                        "y": "5",
+                                        "width": "72",
+                                        "height": "5",
+                                        "fields": [
+                                            {
+                                                "type": "STRING",
+                                                "name": "ds.0.color",
+                                                "value": "689F38"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "ds.0.data_set_label",
+                                                "value": "Total Size of DB"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "ds.0.fill",
+                                                "value": "6"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "ds.0.items.0",
+                                                "value": "Total Size of DB"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "ds.0.transparency",
+                                                "value": "0"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "ds.0.width",
+                                                "value": "3"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "legend_statistic",
+                                                "value": "1"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "reference",
+                                                "value": "DJWTX"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "rf_rate",
+                                                "value": "900"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "righty",
+                                                "value": "0"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "time_period.from",
+                                                "value": "now-1M"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "time_period.to",
+                                                "value": "now"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
 }
