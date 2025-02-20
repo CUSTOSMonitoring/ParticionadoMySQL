@@ -6,7 +6,7 @@ _Template ODBC para crear Stored Procedures sobre la DB, particionar, mantener l
 
 _Esta es la versión del Template "Control de Particionado MySQL ODBC - CUSTOS" utilizado por CUSTOS Monitoring. Probado en las versiones de Zabbix 6.0 y 7.0._
 
-Puedes ver nuestro **Webinar** para ver el procedimiento y tener más información.
+Puedes ver nuestro [Webinar](https://www.youtube.com/watch?v=MVIaw_STErE) para ver el procedimiento y tener más información.
 
 ### Pre-requisitos 📋
 
@@ -58,7 +58,65 @@ EXECUTE, CREATE ROUTINE, ALTER ROUTINE, CREATE TEMPORARY TABLES ON `zabbix`.* TO
 `custos`@`127.0.0.1`;
 ```
 
-#### 4. Template "Control Particionado MySQL - ODBC
+#### 4. Particionado de la tabla auditlog (OPCIONAL)
+
+_Si bien el particionado de cualquier tabla es opcional, en la versión de Zabbix 7.0 el auditlog almacena aún más información y puede llegar a tener un gran peso, al igual que una tabla de histórico._
+
+_Recomendamos particionarla y para esto debemos realizar algunos pasos adicionales previos, con el objetivo de preparar la tabla. Para mayor información, visitar [Preparing auditlog table for partitioning](https://www.zabbix.com/documentation/7.0/en/manual/appendix/install/auditlog_primary_keys), documentación oficial de Zabbix_
+
+#### Preparar la tabla auditlog para particionar
+
+_Detenemos Zabbix Server_
+
+```
+systemctl stop zabbix-server
+```
+
+_Renombramos la tabla vieja_
+
+```
+RENAME TABLE auditlog TO auditlog_old
+```
+
+_Creamos la nueva tabla con los nuevos indices_
+
+```
+CREATE TABLE `auditlog` (
+  `auditid`            varchar(25)                               NOT NULL,
+  `userid`             bigint unsigned                           NULL,
+  `username`           varchar(100)    DEFAULT ''                NOT NULL,
+  `clock`              integer         DEFAULT '0'               NOT NULL,
+  `ip`                 varchar(39)     DEFAULT ''                NOT NULL,
+  `action`             integer         DEFAULT '0'               NOT NULL,
+  `resourcetype`       integer         DEFAULT '0'               NOT NULL,
+  `resourceid`         bigint unsigned                           NULL,
+  `resource_cuid`      varchar(25)                               NULL,
+  `resourcename`       varchar(255)    DEFAULT ''                NOT NULL,
+  `recordsetid`        varchar(25)                               NOT NULL,
+  `details`            longtext                                  NOT NULL,
+  PRIMARY KEY (auditid,clock)
+) ENGINE=InnoDB;
+CREATE INDEX `auditlog_1` ON `auditlog` (`userid`,`clock`);
+CREATE INDEX `auditlog_2` ON `auditlog` (`clock`);
+CREATE INDEX `auditlog_3` ON `auditlog` (`resourcetype`,`resourceid`);
+```
+_Podemos copiar el contenido de auditlog_old a la nueva tabla auditlog_
+
+```
+INSERT INTO auditlog SELECT * FROM auditlog_old;
+```
+
+_Pero si pesan demasiado los datos, se recomienda migrarlos gradualmente segun el 'clock', donde copiaremos todos los registros menores a determinado TIMESTAMP_
+```
+INSERT INTO auditlog SELECT * FROM auditlog_old WHERE="clock < TIMESTAMP"
+```
+
+_Y borrar la tabla antigua auditlog_old_
+```
+DROP TABLE auditlog_old;
+```
+
+#### 5. Template "Control Particionado MySQL - ODBC
 
 * _Descargar e Importar el Template en Zabbix 6.X - 7.X_
 * _Crear el Host "Zabbix DB" (o sobre "Zabbix server") y vincular el Template_
@@ -72,7 +130,7 @@ EXECUTE, CREATE ROUTINE, ALTER ROUTINE, CREATE TEMPORARY TABLES ON `zabbix`.* TO
 |{$CTRLPART.SSH.USER}|custos|`User donde se encuentra la DB para conexión por SSH`|
 |{$CTRLPART.SSH.PASSWORD}|password|`Password donde se encuentra la DB para conexión por SSH`|
 
-#### 5. Ejecución
+#### 6. Ejecución
 
 * _Habilitar el Item "Creación de Stored procedures y ejecutar. Deshabilitarlo luego de comprobar la ejecución"_
 * _Ejecutar el Item "Ejecución Mantenimiento Particionado ODBC"_
@@ -81,7 +139,7 @@ EXECUTE, CREATE ROUTINE, ALTER ROUTINE, CREATE TEMPORARY TABLES ON `zabbix`.* TO
 
 _Ahora ya tenemos las particiones creadas en nuestra Zabbix DB para las tablas que ocupan un mayor espacio._
 
-### Validación ✅
+### 7. Validación ✅
 
 _Métricas que podemos comprobar para asegurarnos que el particionado fue aplicado con éxito_
 
@@ -119,13 +177,19 @@ Latest value:
 
 _En construcción_
 
-## Despliegue en diferentes escenarios ️
+## Despliegue en diferentes escenarios según la implementación de Zabbix que tengamos ️
 
-_Menciona las herramientas que utilizaste para crear tu proyecto_
+#### Instalacion de Zabbix desde Cero
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - El framework web usado
-* [Maven](https://maven.apache.org/) - Manejador de dependencias
-* [ROME](https://rometools.github.io/rome/) - Usado para generar RSS
+_Ya que no contaremos con datos históricos, no debemos preocuparnos por la copia de datos cosechados, y se puede implementar directamente la solución_
+
+#### Instalación de Zabbix desde Cero + Migración de datos desde otra DB
+
+_Podemos implementar la solución, igual que si fuera un "Zabbix desde Cero" y luego hacer un 'dump' de datos históricos para importarlos_
+
+#### Zabbix ya instalado
+
+_En este caso, podremos usar la técnica de renombrar las tablas donde tenemos datos y crear nuevas tablas vacías las cuales serán particionadas y gradualmente copiaremos los datos entre las tablas_
 
 ## Macros usadas 📖
 
