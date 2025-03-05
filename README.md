@@ -81,24 +81,9 @@ RENAME TABLE auditlog TO auditlog_old
 _Creamos la nueva tabla con los nuevos indices_
 
 ```
-CREATE TABLE `auditlog` (
-  `auditid`            varchar(25)                               NOT NULL,
-  `userid`             bigint unsigned                           NULL,
-  `username`           varchar(100)    DEFAULT ''                NOT NULL,
-  `clock`              integer         DEFAULT '0'               NOT NULL,
-  `ip`                 varchar(39)     DEFAULT ''                NOT NULL,
-  `action`             integer         DEFAULT '0'               NOT NULL,
-  `resourcetype`       integer         DEFAULT '0'               NOT NULL,
-  `resourceid`         bigint unsigned                           NULL,
-  `resource_cuid`      varchar(25)                               NULL,
-  `resourcename`       varchar(255)    DEFAULT ''                NOT NULL,
-  `recordsetid`        varchar(25)                               NOT NULL,
-  `details`            longtext                                  NOT NULL,
-  PRIMARY KEY (auditid,clock)
-) ENGINE=InnoDB;
-CREATE INDEX `auditlog_1` ON `auditlog` (`userid`,`clock`);
-CREATE INDEX `auditlog_2` ON `auditlog` (`clock`);
-CREATE INDEX `auditlog_3` ON `auditlog` (`resourcetype`,`resourceid`);
+RENAME TABLE auditlog to auditlog_old
+CREATE TABLE auditlog AS auditlog_old
+ALTER TABLE auditlog ADD PRIMARY KEY (auditid,clock)
 ```
 _Podemos copiar el contenido de auditlog_old a la nueva tabla auditlog_
 
