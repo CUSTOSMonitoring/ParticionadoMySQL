@@ -183,9 +183,9 @@ _En construcción_
 
 _Ya que no contaremos con datos históricos, no debemos preocuparnos por la copia de datos cosechados, y se puede implementar directamente la solución_
 
-#### Instalación de Zabbix desde Cero + Migración de datos desde otra DB
+#### Instalación de Software Zabbix + Migración de datos desde otra DB
 
-_Podemos implementar la solución, igual que si fuera un "Zabbix desde Cero" y luego hacer un 'dump' de datos históricos para importarlos_
+_Instalamos Zabbix en su nueva versión, exportamos el schema y definiciones de la DB antigua, y luego hacemos 'dumps' segmentados para importar el histórico_
 
 #### Zabbix ya instalado
 
