@@ -2,7 +2,7 @@
 
 _Template ODBC para crear Stored Procedures sobre la DB, particionar, mantener la creación de particiones a lo largo del tiempo y eliminarlas al alcanzar un período de validez._
 
-## ¿En que casos necesito particionar?
+## ¿En que casos necesito particionar? ❓
 Cuando el Housekeeper no logra borrar los datos viejos a tiempo, es decir, no puede seguir el ritmo. Esto puede ocurrir cuando la base de datos comienza a tener un tamaño considerable, ya que el Housekeeper recorre registros antiguos tanto en las tablas de History como en las de Trends y borra esos registros seleccionados que ya excedieron el tiempo de almacenado.
 
 ![image](https://github.com/user-attachments/assets/c0f62540-c500-4e79-84bb-796c70279ba5)
