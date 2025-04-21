@@ -3,13 +3,15 @@
 _Template ODBC para crear Stored Procedures sobre la DB, particionar, mantener la creación de particiones a lo largo del tiempo y eliminarlas al alcanzar un período de validez._
 
 ## ¿En que casos necesito particionar?
-Cuando el housekeeper no logra borrar los datos viejos a tiempo, es decir, no puede seguir el ritmo. Esto puede ocurrir cuando la base de datos comienza a tener un tamaño considerable, ya que el housekeeper recorre registros antiguos tanto en las tablas de History como en las de Trends y borra esos registros seleccionados que ya excedieron el tiempo de almacenado.
+Cuando el Housekeeper no logra borrar los datos viejos a tiempo, es decir, no puede seguir el ritmo. Esto puede ocurrir cuando la base de datos comienza a tener un tamaño considerable, ya que el Housekeeper recorre registros antiguos tanto en las tablas de History como en las de Trends y borra esos registros seleccionados que ya excedieron el tiempo de almacenado.
 
 ![image](https://github.com/user-attachments/assets/c0f62540-c500-4e79-84bb-796c70279ba5)
 
-Se puede ver en la captura, que el porcentaje de uso del housekeeper se mantiene al 100% constantemente y nunca termina de borrar registros antes de lo que debería ser su siguiente ejecución (a cada hora).
+Se puede ver en la captura, que el porcentaje de uso del housekeeper se mantiene al 100% constantemente y nunca termina de borrar registros antes de lo que debería ser su siguiente ejecución (a cada hora). Esto también lo podemos notar cuando comiencen a dispararse Triggers de advertencia sobre el uso del Housekeeper y también cuando nuestra DB crece exponencialmente.
 
 [Extraido del Blog de Zabbix. Autor: Nathan Liefting](https://blog.zabbix.com/partitioning-a-zabbix-mysql-database-with-perl-or-stored-procedures/13531/?_gl=1*1ons68w*_gcl_au*MTA5MTc3OTk3My4xNzQwNDA0MjMx*_ga*Nzg5NjI4NzEyLjE2ODU0NzIxMjA.*_ga_1F6WJN99ZG*MTc0NTI0MzIwMy4xMDg4LjAuMTc0NTI0MzIwMy42MC4wLjA)
+
+**Con el particionado propuesto, lograremos borrar bloques que contienen registros de un día entero, en lugar de eliminar registro por registro. Esto trae más ventajas que desventajas. Hay que tener en cuenta que no tendremos la posibilidad de establecer períodos de almacenamiento histórico por Item, sino que estableceremos un mismo período de almacenamiento para todos los Items.**
 
 ## Comenzando 🚀
 
