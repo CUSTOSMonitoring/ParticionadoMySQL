@@ -120,10 +120,12 @@ DROP TABLE auditlog_old;
 
 |MACRO|VALUE|Description
 |----|-----------|-------|
-|{$CTRLPART.DB.USER}|custos|`Usuario para conectarse a la DB`|
+|{$CTRLPART.DB.USER}|username|`Usuario para conectarse a la DB`|
 |{$CTRLPART.DB.PASSWORD}|password|`Password del usuario en la DB`|
-|{$CTRLPART.SSH.USER}|custos|`User donde se encuentra la DB para conexión por SSH`|
+|{$CTRLPART.SSH.USER}|username|`User donde se encuentra la DB para conexión por SSH`|
 |{$CTRLPART.SSH.PASSWORD}|password|`Password donde se encuentra la DB para conexión por SSH`|
+|{$CTRLPART.DB.DSN}|dsnname|`DSN definido en /etc/odbc.ini para conectarse por ODBC y ejecutar los stored procedures`|
+|{$CTRLPART.DB.CONSTR}|Driver=/usr/lib64/libmaodbc.so;Server=127.0.0.1;Port=3306;Database=zabbix|`Connection string con Path del Driver ODBC, IP DB Zabbix, Puerto y Nombre de la DB Zabbix`
 
 #### 6. Ejecución
 
