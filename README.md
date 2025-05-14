@@ -154,7 +154,8 @@ DROP TABLE auditlog_old;
 |{$CTRLPART.SSH.USER}|username|`User donde se encuentra la DB para conexión por SSH`|
 |{$CTRLPART.SSH.PASSWORD}|password|`Password donde se encuentra la DB para conexión por SSH`|
 |{$CTRLPART.DB.DSN}|dsnname|`DSN definido en /etc/odbc.ini para conectarse por ODBC y ejecutar los stored procedures`|
-|{$CTRLPART.DB.CONSTR}|Driver=/usr/lib64/libmaodbc.so;Server=127.0.0.1;Port=3306;Database=zabbix|`Connection string con Path del Driver ODBC, IP DB Zabbix, Puerto y Nombre de la DB Zabbix`
+|{$CTRLPART.DB.CONSTR}|Driver=/usr/lib64/libmaodbc.so;Server=127.0.0.1;Port=3306;Database=zabbix|`Connection string con Path del Driver ODBC, IP DB Zabbix, Puerto y Nombre de la DB Zabbix`|
+|{$CTRLPART.ADD:auditlog}|0|`Si deseamos particionar la tabla de Auditlog. Tener en cuenta que es necesario volver a ejecutar el Item "Creación de Stored procedures si modificamos el valor de esta Macro" (0 -> No   -   1 -> Si)`|
 
 #### 6. Ejecución
 
