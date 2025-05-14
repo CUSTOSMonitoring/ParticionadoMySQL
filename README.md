@@ -92,7 +92,7 @@ _Creamos la nueva tabla con los nuevos indices_
 
 ```
 RENAME TABLE auditlog to auditlog_old
-CREATE TABLE auditlog AS auditlog_old
+CREATE TABLE auditlog LIKE auditlog_old
 ALTER TABLE auditlog ADD PRIMARY KEY (auditid,clock)
 ```
 _Podemos copiar el contenido de auditlog_old a la nueva tabla auditlog_
@@ -129,7 +129,7 @@ DROP TABLE auditlog_old;
 
 #### 6. Ejecución
 
-* _Habilitar el Item "Creación de Stored procedures y ejecutar. Deshabilitarlo luego de comprobar la ejecución"_
+* _Habilitar el Item "Creación de Stored procedures" y ejecutar. Deshabilitarlo luego de comprobar la ejecución"_
 * _Ejecutar el Item "Ejecución Mantenimiento Particionado ODBC"_
 * _Ejecutar Items "Días disponibles en…"_
 * _Deshabilitar Housekeeper para tablas de histórico, trends y auditlog (en caso de haberla particionado)_
