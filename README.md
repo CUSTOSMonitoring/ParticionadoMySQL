@@ -95,13 +95,42 @@ RENAME TABLE auditlog to auditlog_old
 CREATE TABLE auditlog LIKE auditlog_old
 ALTER TABLE auditlog ADD PRIMARY KEY (auditid,clock)
 ```
+_Podemos ejecutar lo siguiente para validar_
+
+```
+SHOW CREATE TABLE auditlog;
+```
+
+_Debería imprimir lo siguiente, donde vemos que ahora se agregó 'clock' como PRIMARY KEY_
+
+```
+CREATE TABLE `auditlog_new` (
+  `auditid`            varchar(25)                               NOT NULL,
+  `userid`             bigint unsigned                           NULL,
+  `username`           varchar(100)    DEFAULT ''                NOT NULL,
+  `clock`              integer         DEFAULT '0'               NOT NULL,
+  `ip`                 varchar(39)     DEFAULT ''                NOT NULL,
+  `action`             integer         DEFAULT '0'               NOT NULL,
+  `resourcetype`       integer         DEFAULT '0'               NOT NULL,
+  `resourceid`         bigint unsigned                           NULL,
+  `resource_cuid`      varchar(25)                               NULL,
+  `resourcename`       varchar(255)    DEFAULT ''                NOT NULL,
+  `recordsetid`        varchar(25)                               NOT NULL,
+  `details`            longtext                                  NOT NULL,
+  PRIMARY KEY (auditid,clock)
+) ENGINE=InnoDB;
+CREATE INDEX `auditlog_1` ON `auditlog_new` (`userid`,`clock`);
+CREATE INDEX `auditlog_2` ON `auditlog_new` (`clock`);
+CREATE INDEX `auditlog_3` ON `auditlog_new` (`resourcetype`,`resourceid`);
+```
+
 _Podemos copiar el contenido de auditlog_old a la nueva tabla auditlog_
 
 ```
 INSERT INTO auditlog SELECT * FROM auditlog_old;
 ```
 
-_Pero si pesan demasiado los datos, se recomienda migrarlos gradualmente segun el 'clock', donde copiaremos todos los registros menores a determinado TIMESTAMP_
+_Pero si los datos pesan demasiado, se recomienda migrarlos gradualmente segun el 'clock', donde copiaremos todos los registros menores a determinado TIMESTAMP_
 ```
 INSERT INTO auditlog SELECT * FROM auditlog_old WHERE="clock < TIMESTAMP"
 ```
