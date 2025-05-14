@@ -85,15 +85,15 @@ systemctl stop zabbix-server
 _Renombramos la tabla vieja_
 
 ```
-RENAME TABLE auditlog TO auditlog_old
+RENAME TABLE auditlog TO auditlog_old;
 ```
 
 _Creamos la nueva tabla con los nuevos indices_
 
 ```
-RENAME TABLE auditlog to auditlog_old
-CREATE TABLE auditlog LIKE auditlog_old
-ALTER TABLE auditlog ADD PRIMARY KEY (auditid,clock)
+RENAME TABLE auditlog to auditlog_old;
+CREATE TABLE auditlog LIKE auditlog_old;
+ALTER TABLE auditlog ADD PRIMARY KEY (auditid,clock);
 ```
 _Podemos ejecutar lo siguiente para validar_
 
@@ -155,12 +155,14 @@ DROP TABLE auditlog_old;
 |{$CTRLPART.SSH.PASSWORD}|password|`Password donde se encuentra la DB para conexión por SSH`|
 |{$CTRLPART.DB.DSN}|dsnname|`DSN definido en /etc/odbc.ini para conectarse por ODBC y ejecutar los stored procedures`|
 |{$CTRLPART.DB.CONSTR}|Driver=/usr/lib64/libmaodbc.so;Server=127.0.0.1;Port=3306;Database=zabbix|`Connection string con Path del Driver ODBC, IP DB Zabbix, Puerto y Nombre de la DB Zabbix`|
-|{$CTRLPART.ADD:auditlog}|0|`Si deseamos particionar la tabla de Auditlog. Tener en cuenta que es necesario volver a ejecutar el Item "Creación de Stored procedures si modificamos el valor de esta Macro" (0 -> No   -   1 -> Si)`|
+|{$CTRLPART.ADD:auditlog}|0|`Si deseamos particionar la tabla de Auditlog. Tener en cuenta que es necesario volver a ejecutar el Item "Creación de Stored procedures" si modificamos el valor de esta Macro" (0 -> No   -   1 -> Si)`|
 
 #### 6. Ejecución
 
 * _Habilitar el Item "Creación de Stored procedures" y ejecutar. Deshabilitarlo luego de comprobar la ejecución"_
+  * _Es necesario volverlo a ejecutar si ya teníamos el particionado de las demás tablas y decidimos particionar el auditlog a partir de cierto momento_
 * _Ejecutar el Item "Ejecución Mantenimiento Particionado ODBC"_
+  * _Habilitar el Item "Dias disponibles en auditlog" en caso de haber particionado la tabla auditlog_
 * _Ejecutar Items "Días disponibles en…"_
 * _Deshabilitar Housekeeper para tablas de histórico, trends y auditlog (en caso de haberla particionado)_
 
@@ -249,7 +251,7 @@ _Las siguientes son todas las Macros existentes en el Template_
 
 ## Items 📖
 
-_Las siguientes son todas las Macros existentes en el Template_
+_Las siguientes son todas los Items existentes en el Template_
 
 |NAME|KEY|TYPE|Description
 |----|-------|-----------|-----------|
